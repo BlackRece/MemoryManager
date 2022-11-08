@@ -1,4 +1,8 @@
 #pragma once
+#include "Tracker.h"
+
+class Tracker;
+
 class BaseObject
 {
 public:

@@ -3,25 +3,12 @@
 #include <iostream>
 #include "BaseObject.h"
 
+#define HEAD_VALUE 0xDEADC0DE
+#define FOOT_VALUE 0xDEADBEEF
+
 void* operator new(size_t size);
 
 void operator delete(void* ptr);
-
-struct Header
-{
-	size_t size;
-	int checkValue;
-	Tracker* pTracker;
-	Header* pNext;
-	Header* pPrev;
-};
-
-struct Footer
-{
-	size_t size;
-	int checkValue;
-	Tracker* pTracker;
-};
 
 class MemoryPool
 {
