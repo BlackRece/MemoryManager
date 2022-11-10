@@ -1,23 +1,20 @@
 #include "BaseObject.h"
 
-#include <iostream>
-#include "Tracker.h"
-
 using namespace std;
 
 BaseObject::BaseObject()
 {
-	cout << "BaseObject :: constructor \n";
+	Log::msg("BaseObject :: constructor \n");
 }
 
 BaseObject::~BaseObject()
 {
-	cout << "BaseObject :: destructor \n";
+	Log::msg("BaseObject :: destructor \n");
 }
 
 void BaseObject::aMethod()
 {
-	cout << "BaseObject :: aMethod \n";
+	Log::msg("BaseObject :: aMethod \n");
 }
 
 void* BaseObject::operator new(size_t size)
@@ -25,7 +22,7 @@ void* BaseObject::operator new(size_t size)
 	return ::operator new(size);
 }
 
-void* operator new(size_t size, Tracker* pTracker)
+void* operator new(size_t size, Heap* pTracker)
 {
 	return ::operator new(size, pTracker);
 }
