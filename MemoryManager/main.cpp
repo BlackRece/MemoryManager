@@ -2,12 +2,11 @@
 //
 #include "MemoryManager.h"
 #include "BaseObject.h"
-#include <map>
 #include "Logger.h"
 
 //#define DEFAULT_MAX_HEAPS 10
 
-int getHeapCount(int argc, char* argv[]);
+//int getHeapCount(int argc, char* argv[]);
 
 int main(int argc, char* argv[])
 {
@@ -18,46 +17,74 @@ int main(int argc, char* argv[])
         return 1;
     }*/
 	
-    Log::msg(
-        "_.-Memeory Manager Demo-._" 
+    std::cout <<
+        "_.-Memeory Manager Demo-._\n" 
         "==========================\n\n" 
-		"Here are some memory tests\n\n");
+		"Here are some heap memory tests\n\n";
 
-    Log::msg("float height = 1.2f");
-    float height = 1.2f;
-    Log::msg(std::to_string(height));
+    std::cout << "\ncreate an int." << std::endl;
+    int* pLength = new int;
+    *pLength = 5;
+    std::cout
+        << "*pLength = \t\t" << *pLength << std::endl
+        << "pLength = \t\t" << std::hex << pLength
+        << std::endl;
+
+    std::cout << "\ndelete an int." << std::endl;
+    delete pLength;
 	
-    Log::msg("char ch = 'x'");
-    char ch = 'x';
-    Log::msg(std::string(1,ch));
+    std::cout << "\ncreate a float." << std::endl;
+    float* pHeight = new float;
+    *pHeight = 1.2f;
+	std::cout 
+        << "*pHeight = \t\t" << *pHeight << std::endl
+	    << "pHeight = \t\t" << std::hex << pHeight 
+        << std::endl;
 
-    // create pointers to each
-    float* pHeight = &height;
-    char* pCh = &ch;
-
-    // print the address values
-	Log::msg("pHeight: " + Log::toHex(*pHeight));
-	Log::msg("pCh: " + Log::toHex(*pCh));
-
-    // we can change values using pointers by dereferencing like so:
-    *pHeight = 0.3f;
-    *pCh = 'c';
-    std::cout << height << ", " << ch << std::endl << std::endl;
-    Log::msg("modified height = " + std::to_string(height));
-    Log::msg("modified ch = " + std::string(1, ch));
+    std::cout << "\ndelete a float." << std::endl;
+    delete pHeight;
 	
-	// we can create a new object on the heap
+	std::cout << "\ncreate a char." << std::endl ;
+    char* pCh = new char;
+    *pCh = 'x';
+	std::cout 
+        << "*pCh = \t\t\t" << *pCh << std::endl
+	    << "pCh = \t\t\t" << std::hex << (void *)pCh 
+        << std::endl;
+    // NOTE: 'std::cout' treats cahr* as strings
+
+    std::cout << "\ndelete a char." << std::endl;
+    delete pCh;
+
+	std::cout << "\ncreate an array." << std::endl;
+	const int arraySize = 5;
+    int* pInts[arraySize];
+    for (size_t i = 0; i < arraySize; i++)
+    {
+		pInts[i] = new int;
+		*pInts[i] = 1;
+	}
+    std::cout
+        << "*pInts[0] = \t\t" << *pInts[0] << std::endl
+        << "pInts = \t\t" << std::hex << &pInts
+        << std::endl;
+
+    std::cout << "\ndelete an array." << std::endl;
+    delete[] pInts;
+
+    std::cout << "\ncreate an object." << std::endl;
 	BaseObject* pObject = new BaseObject();
 	pObject->aMethod();
 	delete pObject;
 
+    std::cin.get();
 }
 
-std::map<int, std::string> getArgMap(int argc, char* argv[]) {
-    std::map<int, std::string> argMap;
-
-    for (int i = 0; i < argc; i++)
-        argMap[i] = argv[i];
-
-    return argMap;
-}
+//std::map<int, std::string> getArgMap(int argc, char* argv[]) {
+//    std::map<int, std::string> argMap;
+//
+//    for (int i = 0; i < argc; i++)
+//        argMap[i] = argv[i];
+//
+//    return argMap;
+//}

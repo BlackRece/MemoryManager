@@ -12,12 +12,12 @@ public:
 	//static int getBytesInUse() { return m_iByteCount; }
 
 	static void* operator new(size_t size);
+	static void* operator new(size_t size, Heap* heap);
 	static void operator delete(void* pMem, size_t size);
-	//void* operator new(size_t size, Heap* heap);
 	//void* operator new(size_t size, std::string tag);
 	//void operator delete(void* pMem);
 
-	void				initHeap();
+	/*void				initHeap();
 	void*				allocHeap(std::string tag);
 
 	void				addBytes(size_t size) { m_iByteCount += size; }
@@ -26,7 +26,7 @@ public:
 
 	const bool			hasTag(std::string nameTag) { return m_sTag == nameTag; }
 	void				setTag(std::string nameTag) { m_sTag = nameTag; }
-	std::string			getTag() { return m_sTag; }
+	std::string			getTag() { return m_sTag; }*/
 	
 	// linked list of heaps
 	Heap*				getNext() { return m_pNext; }

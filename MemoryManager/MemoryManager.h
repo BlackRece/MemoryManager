@@ -6,7 +6,7 @@
 
 
 void* operator new(size_t size);
-void* operator new(size_t size, std::string tag = "Default");
+//void* operator new(size_t size, std::string tag = "Default");
 
 void operator delete(void* ptr);
 

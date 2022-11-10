@@ -2,16 +2,18 @@
 
 void* operator new(size_t size)
 {
-	Log::msg("global operator new called with size : " + size);
+	//Log::msg("global operator new called with size : " + size);
+	//Log::log("global operator new called with size : " + size);
+	std::cout << "global operator new called with size : " << size << std::endl;
 	void* pMem = allocBytes(size);
 
 
 	Header* pHeader = (Header*)pMem;
 	pHeader->m_nSize = size;
 	pHeader->m_iCheckValue = HEAD_VALUE;
-	pHeader->m_pHeap = HeapManager::getHeap();
+	//pHeader->m_pHeap = HeapManager::getHeap();
 
-	Log::msg("CheckValue: " + Log::toHex(HEAD_VALUE));
+	//Log::msg("CheckValue: " + Log::toHex(HEAD_VALUE));
 	//std::cout << std::hex << "CheckValue: " << HEAD_VALUE << std::endl;
 	//pHeader->DebugOutput();
 
@@ -34,47 +36,55 @@ void* operator new (size_t nSize, Heap* pHeap)
 	pHeader->init(nSize, pHeap);
 	pHeader->m_iCheckValue = HEAD_VALUE;
 	
-	pHeap->addBytes(nSize);
+	//pHeap->addBytes(nSize);
 	
 	
 	void* pStartMemBlock = (char*)pMem + sizeof(Header);
 	return pStartMemBlock;
 
-	Log::msg("global operator new called ...");
-	Log::msg("with size: " + nSize);
-	Log::msg("with heap: " + pHeap->getTag());
+	Log::msg(
+		"global operator new called ..."
+		"with size: " + nSize);
+	//Log::msg("with heap: " + pHeap->getTag());
 }
 
-void* operator new(size_t size, std::string heapTag)
-{
-	Log::msg("global operator new called with size: " + size);
-	
-	if (!HeapManager::heapExists(heapTag))
-		HeapManager::initHeap(heapTag);
-
-	Heap* pHeap = (Heap*)HeapManager::getHeap(heapTag);
-
-	void* pMem = allocBytes(size);
-		
-	Header* pHeader = getHead(pMem);
-	pHeader->init(size, pHeap);
-	pHeader->m_iCheckValue = HEAD_VALUE;
-	
-	Log::msg("CheckValue: " + Log::toHex(pHeader->m_iCheckValue));
-	//pHeader->DebugOutput();
-
-	Footer* pFooter = getFoot(pMem);
-	
-	// TODO: set some values in the footer
-	pFooter->iCheckValue = FOOT_VALUE;
-
-	void* pStartMemBlock = getData(pMem);
-	return pStartMemBlock;
-}
+//void* operator new(size_t size, std::string tag)
+//{
+//	//Log::msg("global operator new called with size: " + size);
+//	std::cout
+//		<< "global operator new called\n"
+//		<< "with size : " << size << std::endl
+//		<< "and tag : " << tag << std::endl;
+//	
+//	//if (!HeapManager::heapExists(tag))
+//	//	HeapManager::initHeap(tag);
+//
+//	//Heap* pHeap = (Heap*)HeapManager::getHeap(tag);
+//
+//	void* pMem = allocBytes(size);
+//		
+//	Header* pHeader = getHead(pMem);
+//	//pHeader->init(size, pHeap);
+//	pHeader->m_iCheckValue = HEAD_VALUE;
+//	
+//	//Log::msg("CheckValue: " + Log::toHex(pHeader->m_iCheckValue));
+//	//pHeader->DebugOutput();
+//
+//	Footer* pFooter = getFoot(pMem);
+//	
+//	// TODO: set some values in the footer
+//	pFooter->iCheckValue = FOOT_VALUE;
+//
+//	void* pStartMemBlock = getData(pMem);
+//	return pStartMemBlock;
+//}
 
 void operator delete(void* pMem)
 {
-	Log::msg("global operator delete called at address" + Log::toHex((unsigned int)pMem));
+	std::cout << "global operator delete called \n"
+		<< "for address : " << std::hex << pMem
+		<< std::endl;
+	//Log::msg("global operator delete called at address" + Log::toHex((unsigned int)pMem));
 		
 	Header* pHeader = getHead(pMem);
 	
@@ -82,8 +92,9 @@ void operator delete(void* pMem)
 	// especially when I don't use it?
 	size_t nSize = pHeader->m_nSize;
 	Footer* pFooter = (Footer*)(char*)getData(pMem) + nSize;
-	Heap* pHeap = pHeader->m_pHeap;
-	pHeap->delBytes(nSize);
+	
+	//Heap* pHeap = pHeader->m_pHeap;
+	//pHeap->delBytes(nSize);
 	free(pHeader);
 }
 
