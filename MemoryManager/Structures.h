@@ -13,6 +13,8 @@ struct Header
 	Header* m_pNext;
 	Header* m_pPrev;
 	
+	//Header(void* )
+
 	bool hasChanged() { return m_iCheckValue != HEAD_VALUE; }
 	void init(size_t size, Heap* pHeap)
 	{
@@ -24,16 +26,16 @@ struct Header
 		m_pNext = nullptr;
 		m_pPrev = nullptr;
 	}
+	
 	void DebugOutput();
 };
 
 struct Footer
 {
-	size_t nSize;
-	int iCheckValue;
-	//Tracker* pTracker;
+	int m_iCheckValue;
 	
-	bool hasChanged(int footValue) { return iCheckValue != footValue; }
+	bool hasChanged(int footValue) { return m_iCheckValue != footValue; }
+	void init()	{ m_iCheckValue = FOOT_VALUE;	}
 };
 
 struct ObjectExample

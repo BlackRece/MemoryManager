@@ -132,7 +132,6 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
-    <ClCompile Include="Structures.cpp" />
     <ClCompile Include="HeapManager.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -58,14 +58,12 @@ int main(int argc, char* argv[])
 
 	std::cout << "\ncreate an array." << std::endl;
 	const int arraySize = 5;
-    int* pInts[arraySize];
+    int* pInts = new int[arraySize];
     for (size_t i = 0; i < arraySize; i++)
-    {
-		pInts[i] = new int;
-		*pInts[i] = 1;
-	}
+		pInts[i] = i;
+	
     std::cout
-        << "*pInts[0] = \t\t" << *pInts[0] << std::endl
+        << "*pInts = \t\t" << *pInts << std::endl
         << "pInts = \t\t" << std::hex << &pInts
         << std::endl;
 
@@ -77,6 +75,7 @@ int main(int argc, char* argv[])
 	pObject->aMethod();
 	delete pObject;
 
+    std::cout << "\nEnd Of Demo." << std::endl;
     std::cin.get();
 }
 

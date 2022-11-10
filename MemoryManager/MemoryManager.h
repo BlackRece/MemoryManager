@@ -5,7 +5,8 @@
 #include <iostream>
 
 
-void* operator new(size_t size);
+void* operator new(size_t nSize);
+void* operator new(size_t nSize, Heap* pHeap);
 //void* operator new(size_t size, std::string tag = "Default");
 
 void operator delete(void* ptr);

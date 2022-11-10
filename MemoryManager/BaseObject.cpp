@@ -28,11 +28,11 @@ void* BaseObject::operator new(size_t size)
 //	return ::operator new(size, pTracker);
 //}
 
-void BaseObject::operator delete(void* p, size_t size)
+void BaseObject::operator delete(void* pMem, size_t size)
 {
 	std::cout
 		<< "class operator delete called \n"
 		<< "with size : " << size << std::endl
-		<< "and pointer : " << std::hex << p << std::endl;
-	::operator delete(p);
+		<< "and pointer : " << std::hex << pMem << std::endl;
+	::operator delete(pMem);
 }

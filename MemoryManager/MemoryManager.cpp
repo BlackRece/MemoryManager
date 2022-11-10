@@ -1,29 +1,21 @@
 #include "MemoryManager.h"
 
-void* operator new(size_t size)
+void* operator new(size_t nSize)
 {
-	//Log::msg("global operator new called with size : " + size);
-	//Log::log("global operator new called with size : " + size);
-	std::cout << "global operator new called with size : " << size << std::endl;
-	void* pMem = allocBytes(size);
-
+	std::cout 
+		<< "global operator new called ... \n"
+		<< "with size : " << nSize << std::endl;
+	
+	void* pMem = allocBytes(nSize);
+	std::cout
+		<< nSize << " bytes allocated at address : "
+		<< std::hex << pMem << std::endl;
 
 	Header* pHeader = (Header*)pMem;
-	pHeader->m_nSize = size;
-	pHeader->m_iCheckValue = HEAD_VALUE;
-	//pHeader->m_pHeap = HeapManager::getHeap();
-
-	//Log::msg("CheckValue: " + Log::toHex(HEAD_VALUE));
-	//std::cout << std::hex << "CheckValue: " << HEAD_VALUE << std::endl;
-	//pHeader->DebugOutput();
-
-	void* FooterAddress = (char*)pMem + sizeof(Header) + size;
-	Footer* pFooter = (Footer*)FooterAddress;
-
-	// TODO: set some values in the footer
-	pFooter->iCheckValue = FOOT_VALUE;
-
-
+	pHeader->init(nSize, nullptr);
+	
+	Footer* pFooter = getFoot(pMem);
+	pFooter->init();
 
 	void* pStartMemBlock = (char*)pMem + sizeof(Header);
 	return pStartMemBlock;
@@ -31,21 +23,33 @@ void* operator new(size_t size)
 
 void* operator new (size_t nSize, Heap* pHeap)
 {
+	std::cout
+		<< "global operator new called ..."
+		<< "with size: " << nSize << std::endl;
+
 	void* pMem = allocBytes(nSize);
+
+	std::cout
+		<< nSize << " bytes allocated at address : " 
+		<< std::hex << pMem << std::endl;
+	
 	Header* pHeader = (Header*)pMem;
 	pHeader->init(nSize, pHeap);
-	pHeader->m_iCheckValue = HEAD_VALUE;
+	std::cout << "header initialised" << std::endl;
 	
 	//pHeap->addBytes(nSize);
 	
-	
-	void* pStartMemBlock = (char*)pMem + sizeof(Header);
-	return pStartMemBlock;
+	Footer* pFooter = getFoot(pMem);
+	pFooter->init();
+	std::cout << "footer initialised" << std::endl;
 
-	Log::msg(
-		"global operator new called ..."
-		"with size: " + nSize);
-	//Log::msg("with heap: " + pHeap->getTag());
+	//void* pStartMemBlock = (char*)pMem + sizeof(Header);
+	void* pStartMemBlock = getData(pMem);
+	std::cout 
+		<< "data pointer allocated at : " 
+		<< std::hex << pStartMemBlock << std::endl;
+	
+	return pStartMemBlock;
 }
 
 //void* operator new(size_t size, std::string tag)
@@ -81,21 +85,30 @@ void* operator new (size_t nSize, Heap* pHeap)
 
 void operator delete(void* pMem)
 {
-	std::cout << "global operator delete called \n"
+	std::cout 
+		<< "global operator delete called \n"
 		<< "for address : " << std::hex << pMem
 		<< std::endl;
-	//Log::msg("global operator delete called at address" + Log::toHex((unsigned int)pMem));
 		
 	Header* pHeader = getHead(pMem);
+	size_t nSize = pHeader->m_nSize;
+	std::cout 
+		<< nSize << "bytes header captured at address: " 
+		<< std::hex << pHeader << std::endl;
 	
 	// why do I need to get the footer?
 	// especially when I don't use it?
-	size_t nSize = pHeader->m_nSize;
-	Footer* pFooter = (Footer*)(char*)getData(pMem) + nSize;
+	Footer* pFooter = getFoot(pMem);
+	std::cout 
+		<< "footer captured at address: " 
+		<< std::hex << pFooter << std::endl;
 	
 	//Heap* pHeap = pHeader->m_pHeap;
 	//pHeap->delBytes(nSize);
 	free(pHeader);
+	std::cout 
+		<< "header deleted : bytes freed = "
+		<< nSize << std::endl;
 }
 
 void* allocBytes (size_t size)

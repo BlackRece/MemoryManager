@@ -3,17 +3,35 @@
 #include "Logger.h"
 #include <iostream>
 
-void* Heap::operator new(size_t size)
-{
-	//return ::operator new(size, HeapManager::getHeap());
-	return ::operator new(size);
+Heap::Heap(std::string tag)
+{ 
+	m_sTag = tag;
+	
+	m_iByteCount = 0;
+	
+	m_pHeader = nullptr;
+
+	m_pNext = nullptr;
+	m_pPrev = nullptr;
+	
+	std::cout << "heap initialised : " << tag << std::endl;
 }
 
-void Heap::operator delete(void* pMem, size_t size)
-{
-	::operator delete(pMem);
-	std::cout << "Heap :: deleted size = " << size << std::endl;
-}
+//
+//void* Heap::operator new(size_t size)
+//{
+//	//return ::operator new(size, HeapManager::getHeap());
+//	return ::operator new(size);
+//}
+//
+//void Heap::operator delete(void* pMem, size_t size)
+//{
+//	std::cout
+//		<< "heap operator delete called \n"
+//		<< "with size : " << size << std::endl
+//		<< "and pointer : " << std::hex << pMem << std::endl;
+//	::operator delete(pMem);
+//}
 
 //void Heap::initHeap()
 //{
