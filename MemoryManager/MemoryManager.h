@@ -11,11 +11,7 @@ void* operator new(size_t nSize, Heap* pHeap);
 
 void operator delete(void* ptr);
 
-static Header*	getHead(void* ptr) { return (Header*)((char*)ptr - sizeof(Header)); }
-static Footer*	getFoot(void* ptr) { return (Footer*)((char*)ptr + getHead(ptr)->m_nSize); }
-static void*	getData(void* ptr) { return (void*)((char*)ptr + sizeof(Header)); }
-
-static void* allocBytes(size_t size);
+static char* allocBytes(size_t size);
 
 static void logHeader(void* ptr);
 static void setHeapCount(int heapCount) { HeapManager::setHeapCount(heapCount); }

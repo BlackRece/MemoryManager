@@ -39,7 +39,7 @@ struct Footer
 {
 	int m_iCheckValue;
 	
-	bool hasChanged(int footValue) { return m_iCheckValue != footValue; }
+	bool hasChanged() { return m_iCheckValue != FOOT_VALUE; }
 	void init()	{ m_iCheckValue = FOOT_VALUE;	}
 };
 

@@ -6,18 +6,27 @@ void* operator new(size_t nSize)
 		<< "global operator new called ... \n"
 		<< "with size : " << std::dec << nSize << std::endl;
 	
-	void* pMem = allocBytes(nSize);
+	char* pMem = allocBytes(nSize);
 	std::cout
 		<< std::dec << nSize << " bytes allocated at address : "
-		<< std::hex << pMem << std::endl;
+		<< std::hex << (void*)pMem << std::endl;
 
 	Header* pHeader = (Header*)pMem;
 	pHeader->init(nSize);
-	
-	Footer* pFooter = getFoot(pMem);
-	pFooter->init();
+	pHeader->m_nSize;
 
-	void* pStartMemBlock = getData(pMem);
+	void* pFooterAddress = pMem + sizeof(Header) + nSize;
+	Footer* pFooter = (Footer*)pFooterAddress;
+
+	std::cout
+		<< "pFooter check value: "
+		<< std::hex << pFooter->m_iCheckValue << std::endl;
+	pFooter->init();
+	std::cout
+		<< "pFooter check value: "
+		<< std::hex << pFooter->m_iCheckValue << std::endl;
+
+	void* pStartMemBlock = pMem + sizeof(Header);
 	return pStartMemBlock;
 }
 
@@ -31,7 +40,7 @@ void* operator new (size_t nSize, Heap* pHeap)
 
 	std::cout
 		<< std::dec << nSize << " bytes allocated at address : "
-		<< std::hex << pMem << std::endl;
+		<< std::hex << (void*)pMem << std::endl;
 	
 	Header* pHeader = (Header*)pMem;
 	std::cout 
@@ -43,12 +52,13 @@ void* operator new (size_t nSize, Heap* pHeap)
 	
 	//pHeap->addBytes(nSize);
 	
-	Footer* pFooter = getFoot(pMem);
+	void* pFooterAddress = (char*)pMem + sizeof(Header) + nSize;
+	Footer* pFooter = (Footer*)pFooterAddress;
 	pFooter->init();
 	std::cout << "footer initialised" << std::endl;
 
-	//void* pStartMemBlock = (char*)pMem + sizeof(Header);
-	void* pStartMemBlock = getData(pMem);
+	void* pStartMemBlock = (char*)pMem + sizeof(Header);
+	//void* pStartMemBlock = getData(pMem);
 	std::cout 
 		<< "data pointer allocated at : " 
 		<< std::hex << pStartMemBlock << std::endl;
@@ -94,7 +104,7 @@ void operator delete(void* pMem)
 		<< "for address : " << std::hex << pMem
 		<< std::endl;
 		
-	Header* pHeader = getHead(pMem);
+	Header* pHeader = (Header*)((char*)pMem - sizeof(Header));
 	size_t nSize = pHeader->m_nSize;
 	std::cout 
 		<< std::dec << nSize 
@@ -103,11 +113,18 @@ void operator delete(void* pMem)
 	
 	// why do I need to get the footer?
 	// especially when I don't use it?
-	Footer* pFooter = getFoot(pMem);
+	Footer* pFooter = (Footer*)((char*)pMem + nSize);
 	std::cout 
 		<< "footer captured at address: " 
 		<< std::hex << pFooter << std::endl;
-	
+
+	if (pFooter->hasChanged())
+		std::cout
+		<< "Error: Footer check value is invalid!\n";
+	else
+		std::cout
+		<< "Footer check value OK!";
+		
 	//Heap* pHeap = pHeader->m_pHeap;
 	//pHeap->delBytes(nSize);
 	//free(pMem);
@@ -117,7 +134,7 @@ void operator delete(void* pMem)
 		<< std::dec << nSize << std::endl;
 }
 
-void* allocBytes (size_t size)
+char* allocBytes (size_t size)
 {
 	size_t nHead = sizeof(Header);
 	size_t nFoot = sizeof(Footer);
@@ -132,10 +149,11 @@ void* allocBytes (size_t size)
 
 	char* pResult = (char*)malloc(totalSize);
 	std::cout
-		<< "\naddress selected: " << std::hex << (void*)pResult
+		<< "\naddress selected: " << std::hex 
+		<< (void*)pResult
 		<< std::endl;
 
-	return (void*)pResult;
+	return pResult;
 }
 
 /*void logHeader(void* ptr)
