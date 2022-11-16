@@ -17,7 +17,8 @@ public:
 	//void* operator new(size_t size, std::string tag);
 	//void operator delete(void* pMem);
 
-	//void				initHeap();
+	void	CreateHeap();
+	static Heap*		initHeap(std::string tag);
 	//void*				allocHeap(std::string tag);
 
 	//void				addBytes(size_t size) { m_iByteCount += size; }

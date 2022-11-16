@@ -1,5 +1,4 @@
 #include "HeapManager.h"
-#include "Heap.h"
 
 Heap* HeapManager::s_pHeaps = nullptr;
 
@@ -21,16 +20,18 @@ HeapManager::~HeapManager()
 //	return pHeap;
 //}
 
-//Heap* HeapManager::getHeap(std::string tag)
-//{
-//	Heap* pHeap = findHeap(tag);
-//	
-//	if (pHeap == nullptr)
-//		initHeap(tag);
-//	
-//	return pHeap;
-//	
-//}
+Heap* HeapManager::getHeap(std::string tag)
+{
+	//Heap* pHeap = findHeap(tag);
+	std::cout
+		<< "HeapManager - getHeap...\n";
+
+	if (HeapManager::s_pHeaps == nullptr)
+		HeapManager::s_pHeaps = Heap::initHeap(tag);
+	
+	return 	HeapManager::s_pHeaps;
+	
+}
 
 //Heap* HeapManager::findHeap(std::string tag)
 //{
@@ -52,7 +53,7 @@ HeapManager::~HeapManager()
 //	return nullptr;
 //}
 
-//void HeapManager::initHeap(std::string tag)
-//{
-//	s_pHeaps->initHeap();
-//}
+void HeapManager::initHeap(std::string tag)
+{
+	s_pHeaps = Heap::initHeap(tag);
+}

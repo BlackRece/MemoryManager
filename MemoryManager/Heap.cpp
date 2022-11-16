@@ -1,6 +1,4 @@
 #include "Heap.h"
-#include "HeapManager.h"
-#include "Logger.h"
 #include <iostream>
 
 Heap::Heap(std::string tag)
@@ -17,7 +15,6 @@ Heap::Heap(std::string tag)
 	std::cout << "heap initialised : " << tag << std::endl;
 }
 
-//
 //void* Heap::operator new(size_t size)
 //{
 //	//return ::operator new(size, HeapManager::getHeap());
@@ -33,17 +30,53 @@ Heap::Heap(std::string tag)
 //	::operator delete(pMem);
 //}
 
-//void Heap::initHeap()
-//{
-//	Log::msg("heap initialised.");
-//	m_iByteCount = 0;
-//	m_sTag = "";
-//	m_pHeader = nullptr;
-//
-//	m_pNext = nullptr;
-//	m_pPrev = nullptr;
-//}
-//
+void Heap::CreateHeap()
+{
+	//m_sTag = tag;
+
+	m_iByteCount = 0;
+
+	m_pHeader = nullptr;
+
+	m_pNext = nullptr;
+	m_pPrev = nullptr;
+
+	std::cout << "heap initialised : " << std::endl;
+}
+
+Heap* Heap::initHeap(std::string tag)
+{
+	std::cout
+		<< "tag: " << tag << std::endl;
+
+	size_t nHeaderSize = sizeof(Header);
+	size_t nHeapSize = sizeof(Heap);
+	size_t nRequestedBytes = nHeaderSize + nHeapSize;
+	char* pMem = (char*)malloc(nRequestedBytes);
+	
+	Heap* pHeap = (Heap*)pMem + nHeaderSize;
+	pHeap->CreateHeap();
+
+	Header* pHeader = (Header*)pMem;
+	pHeader->init(nRequestedBytes, pHeap);
+
+	//pHeader->init(nRequestedBytes, (Heap*)pMem + nHeaderSize);
+	//pHeader->m_pHeap = (Heap*)pMem + nHeaderSize;
+	std::cout
+		<< "new heap initialised \n at address : "
+		<< pMem << std::endl;
+	
+	
+	
+	/*m_iByteCount = 0;
+	m_sTag = "";
+	m_pHeader = nullptr;
+
+	m_pNext = nullptr;
+	m_pPrev = nullptr;*/
+	return pHeader->m_pHeap;
+}
+
 //void* Heap::allocHeap(std::string tag)
 //{
 //	initHeap();

@@ -26,8 +26,9 @@ int main(int argc, char* argv[])
     int* pLength = new int;
     *pLength = 5;
     std::cout
-        << "*pLength = \t\t" << *pLength << std::endl
-        << "pLength = \t\t" << std::hex << pLength
+        << "value of pLength = \t\t" << std::dec << *pLength << std::endl
+        << "address of *pLength = \t\t" << std::hex << pLength << std::endl
+        << "size of pLength = \t\t" << std::dec << sizeof &pLength
         << std::endl;
 
     std::cout << "\ndelete an int." << std::endl;
@@ -37,8 +38,9 @@ int main(int argc, char* argv[])
     float* pHeight = new float;
     *pHeight = 1.2f;
 	std::cout 
-        << "*pHeight = \t\t" << *pHeight << std::endl
-	    << "pHeight = \t\t" << std::hex << pHeight 
+        << "value of pHeight = \t\t" << std::dec << *pHeight << std::endl
+	    << "address of *pHeight = \t\t" << std::hex << pHeight << std::endl
+		<< "size of pHeight = \t\t" << std::dec<< sizeof & pHeight
         << std::endl;
 
     std::cout << "\ndelete a float." << std::endl;
@@ -48,8 +50,9 @@ int main(int argc, char* argv[])
     char* pCh = new char;
     *pCh = 'x';
 	std::cout 
-        << "*pCh = \t\t\t" << *pCh << std::endl
-	    << "pCh = \t\t\t" << std::hex << (void *)pCh 
+        << "value of pCh = \t\t\t" << std::dec << *pCh << std::endl
+	    << "address of *pCh = \t\t\t" << std::hex << (void *)pCh << std::endl
+		<< "size of pCh = \t\t\t" << std::dec << sizeof & pCh
         << std::endl;
     // NOTE: 'std::cout' treats cahr* as strings
 
@@ -63,8 +66,9 @@ int main(int argc, char* argv[])
 		pInts[i] = i;
 	
     std::cout
-        << "*pInts = \t\t" << *pInts << std::endl
-        << "pInts = \t\t" << std::hex << &pInts
+        << "value of pInts = \t\t" << std::dec << *pInts << std::endl
+        << "address of pInts = \t\t" << std::hex << &pInts << std::endl
+		<< "size of pInts = \t\t" << std::dec << sizeof & pInts
         << std::endl;
 
     std::cout << "\ndelete an array." << std::endl;

@@ -16,10 +16,9 @@ struct Header
 	//Header(void* )
 
 	bool hasChanged() { return m_iCheckValue != HEAD_VALUE; }
-	void init(size_t size, Heap* pHeap)
+	void init(size_t size)
 	{
 		m_nSize = size;
-		m_pHeap = pHeap;
 		
 		m_iCheckValue = HEAD_VALUE;
 		
@@ -27,7 +26,13 @@ struct Header
 		m_pPrev = nullptr;
 	}
 	
-	void DebugOutput();
+	void init(size_t size, Heap* pHeap)
+	{
+		m_pHeap = pHeap;
+		init(size);
+	}
+
+	//void DebugOutput();
 };
 
 struct Footer

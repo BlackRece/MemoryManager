@@ -4,20 +4,20 @@ void* operator new(size_t nSize)
 {
 	std::cout 
 		<< "global operator new called ... \n"
-		<< "with size : " << nSize << std::endl;
+		<< "with size : " << std::dec << nSize << std::endl;
 	
 	void* pMem = allocBytes(nSize);
 	std::cout
-		<< nSize << " bytes allocated at address : "
+		<< std::dec << nSize << " bytes allocated at address : "
 		<< std::hex << pMem << std::endl;
 
 	Header* pHeader = (Header*)pMem;
-	pHeader->init(nSize, nullptr);
+	pHeader->init(nSize);
 	
 	Footer* pFooter = getFoot(pMem);
 	pFooter->init();
 
-	void* pStartMemBlock = (char*)pMem + sizeof(Header);
+	void* pStartMemBlock = getData(pMem);
 	return pStartMemBlock;
 }
 
@@ -30,10 +30,14 @@ void* operator new (size_t nSize, Heap* pHeap)
 	void* pMem = allocBytes(nSize);
 
 	std::cout
-		<< nSize << " bytes allocated at address : " 
+		<< std::dec << nSize << " bytes allocated at address : "
 		<< std::hex << pMem << std::endl;
 	
 	Header* pHeader = (Header*)pMem;
+	std::cout 
+		<< "header assigned to address :" 
+		<< std::hex << pMem << std::endl;
+
 	pHeader->init(nSize, pHeap);
 	std::cout << "header initialised" << std::endl;
 	
@@ -93,7 +97,8 @@ void operator delete(void* pMem)
 	Header* pHeader = getHead(pMem);
 	size_t nSize = pHeader->m_nSize;
 	std::cout 
-		<< nSize << "bytes header captured at address: " 
+		<< std::dec << nSize 
+		<< "bytes header captured at address: " 
 		<< std::hex << pHeader << std::endl;
 	
 	// why do I need to get the footer?
@@ -105,23 +110,39 @@ void operator delete(void* pMem)
 	
 	//Heap* pHeap = pHeader->m_pHeap;
 	//pHeap->delBytes(nSize);
+	//free(pMem);
 	free(pHeader);
 	std::cout 
 		<< "header deleted : bytes freed = "
-		<< nSize << std::endl;
+		<< std::dec << nSize << std::endl;
 }
 
 void* allocBytes (size_t size)
 {
-	size_t totalSize = size + sizeof(Header) + sizeof(Footer);
-	return malloc(totalSize);
+	size_t nHead = sizeof(Header);
+	size_t nFoot = sizeof(Footer);
+	size_t totalSize = size + nHead + nFoot;
+	std::cout 
+		<< std::dec
+		<< "requested size: " << size << std::endl
+		<< "header size: " << nHead << std::endl
+		<< "footer size: " << nFoot << std::endl
+		<< "===========" << std::endl
+		<< "total size: " << totalSize << std::endl;
+
+	char* pResult = (char*)malloc(totalSize);
+	std::cout
+		<< "\naddress selected: " << std::hex << (void*)pResult
+		<< std::endl;
+
+	return (void*)pResult;
 }
 
-void logHeader(void* ptr)
+/*void logHeader(void* ptr)
 {
 	Header* pHeader = (Header*)ptr;
 	Log::msg("Size: " + pHeader->m_nSize);
 	Log::msg("CheckValue: " + Log::toHex(pHeader->m_iCheckValue));
 	Log::msg("Next Header: " + Log::toHex((int)pHeader->m_pNext));
 	Log::msg("Prev Header: " + Log::toHex((int)pHeader->m_pPrev));
-}
+}*/
