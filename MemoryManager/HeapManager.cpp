@@ -1,3 +1,4 @@
+#include <iostream>
 #include "HeapManager.h"
 
 Heap* HeapManager::s_pHeaps = nullptr;
@@ -20,17 +21,77 @@ HeapManager::~HeapManager()
 //	return pHeap;
 //}
 
-Heap* HeapManager::getHeap(std::string tag)
+Heap* HeapManager::getHeap()
 {
 	//Heap* pHeap = findHeap(tag);
 	std::cout
-		<< "HeapManager - getHeap...\n";
+		<< "HeapManager - getHeap using default heap tag...\n";
+
+	Heap* pHeap = nullptr;
 
 	if (HeapManager::s_pHeaps == nullptr)
-		HeapManager::s_pHeaps = Heap::initHeap(tag);
+	{
+		HeapManager::s_pHeaps = new (nullptr) Heap();
+		return HeapManager::s_pHeaps;
+	}
+
+	//pHeap = findHeap(tag);
+
+	return pHeap;
+}
+
+
+Heap* HeapManager::getHeap(const std::string tag)
+{
+	//Heap* pHeap = findHeap(tag);
+	std::cout
+		<< "HeapManager - getHeap from heap tag...\n";
+
+	Heap* pHeap = nullptr;
+
+	if (HeapManager::s_pHeaps == nullptr)
+	{
+		HeapManager::s_pHeaps = new (nullptr) Heap();
+		return HeapManager::s_pHeaps;
+	}
 	
-	return 	HeapManager::s_pHeaps;
+	pHeap = findHeap(tag);
 	
+	return pHeap;
+}
+
+Heap* HeapManager::getHeap(Heap* pHeap)
+{
+	std::cout
+		<< "HeapManager - getHeap from heap pointer...\n";
+	
+	std::string heapTag = pHeap == nullptr 
+		? heapTag = DEFAULT_HEAP_TAG
+		: heapTag = pHeap->getTag();
+		
+	return getHeap(heapTag);
+}
+
+Heap* HeapManager::findHeap(std::string tag)
+{
+	std::cout
+		<< "HeapManager - findHeap...\n";
+
+	if (s_pHeaps == nullptr)
+		return getHeap(tag);
+	
+	Heap* pHeap = s_pHeaps;
+	
+	//while (pHeap != nullptr)
+	while (!pHeap->hasTag(tag))
+	{
+		if (pHeap->getNext() == nullptr)
+			return getHeap(tag);
+		
+		pHeap = pHeap->getNext();
+	}
+
+	return pHeap;
 }
 
 //Heap* HeapManager::findHeap(std::string tag)

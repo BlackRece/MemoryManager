@@ -1,18 +1,20 @@
 #include "Heap.h"
 #include <iostream>
 
-Heap::Heap(std::string tag)
+Heap::Heap()
 { 
-	m_sTag = tag;
+	m_sTag = DEFAULT_HEAP_TAG;
 	
-	m_iByteCount = 0;
+	m_nByteCount = 0;
+	m_nBytesAdded = 0;
+	m_nBytesRemoved = 0;
 	
 	m_pHeader = nullptr;
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
 	
-	std::cout << "heap initialised : " << tag << std::endl;
+	std::cout << "heap initialised : " << m_sTag << std::endl;
 }
 
 //void* Heap::operator new(size_t size)
@@ -30,19 +32,34 @@ Heap::Heap(std::string tag)
 //	::operator delete(pMem);
 //}
 
-void Heap::CreateHeap()
+void Heap::CreateDefaultHeap()
 {
-	//m_sTag = tag;
+	m_sTag = DEFAULT_HEAP_TAG;
 
-	m_iByteCount = 0;
+	m_nByteCount = 0;
 
-	m_pHeader = nullptr;
+	//m_pHeader = nullptr;
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
 
 	std::cout << "heap initialised : " << std::endl;
 }
+
+void Heap::CreateHeap(std::string tag)
+{
+	m_sTag = tag;
+
+	m_nByteCount = 0;
+
+	//m_pHeader = nullptr;
+
+	m_pNext = nullptr;
+	m_pPrev = nullptr;
+
+	std::cout << "heap initialised : " << std::endl;
+}
+
 
 Heap* Heap::initHeap(std::string tag)
 {
@@ -55,7 +72,7 @@ Heap* Heap::initHeap(std::string tag)
 	char* pMem = (char*)malloc(nRequestedBytes);
 	
 	Heap* pHeap = (Heap*)pMem + nHeaderSize;
-	pHeap->CreateHeap();
+	pHeap->CreateHeap(tag);
 
 	Header* pHeader = (Header*)pMem;
 	pHeader->init(nRequestedBytes, pHeap);

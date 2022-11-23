@@ -16,6 +16,15 @@ static char* allocBytes(size_t size);
 static void logHeader(void* ptr);
 static void setHeapCount(int heapCount) { HeapManager::setHeapCount(heapCount); }
 
+class MemoryManager
+{
+public:
+	MemoryManager();
+	~MemoryManager();
+
+private:
+};
+
 class MemoryPool
 {
 public:

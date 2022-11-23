@@ -1,12 +1,15 @@
 #pragma once
-#include "Structures.h"
+#include <cmath>
 #include <string>
+#include "Structures.h"
+
+#define DEFAULT_HEAP_TAG "Default"
 
 class Heap
 {
 public:
 	//Heap() {};
-	Heap(std::string tag);
+	Heap();
 	//~Heap() {};
 	
 	//static int getBytesInUse() { return m_iByteCount; }
@@ -17,13 +20,18 @@ public:
 	//void* operator new(size_t size, std::string tag);
 	//void operator delete(void* pMem);
 
-	void	CreateHeap();
+	void				CreateDefaultHeap();
+	void				CreateHeap(std::string tag);
 	static Heap*		initHeap(std::string tag);
 	//void*				allocHeap(std::string tag);
 
 	//void				addBytes(size_t size) { m_iByteCount += size; }
 	//void				delBytes(size_t size) { m_iByteCount -= size; }
 	//size_t				getBytes() { return m_iByteCount; }
+	
+	void				addBytes(size_t byteCount) { m_nBytesAdded += std::abs((int)byteCount); }
+	void				subBytes(size_t byteCount) { m_nBytesRemoved += std::abs((int)byteCount); }
+	size_t				getBytes() { return m_nBytesAdded - m_nBytesRemoved; }
 
 	const bool			hasTag(std::string nameTag) { return m_sTag == nameTag; }
 	void				setTag(const std::string nameTag) { m_sTag = nameTag; }
@@ -37,7 +45,9 @@ public:
 	void				setPrev(Heap* pPrev) { m_pPrev = pPrev; }
 	
 private:
-	size_t				m_iByteCount;
+	size_t				m_nByteCount;
+	size_t				m_nBytesAdded;
+	size_t				m_nBytesRemoved;
 	std::string			m_sTag;
 	
 	Header*				m_pHeader;

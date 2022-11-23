@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
     std::cout <<
         "_.-Memeory Manager Demo-._\n" 
         "==========================\n\n" 
+		"Initializing Memory Manager...\n";
 		"Here are some heap memory tests\n\n";
 
     std::cout << "\ncreate an int." << std::endl;
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
 	std::cout << "\ncreate an array." << std::endl;
 	const int arraySize = 5;
     int* pInts = new int[arraySize];
-    for (size_t i = 0; i < arraySize; i++)
+    for (int i = 0; i < arraySize; i++)
 		pInts[i] = i;
 	
     std::cout

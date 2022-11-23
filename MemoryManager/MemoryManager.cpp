@@ -10,22 +10,17 @@ void* operator new(size_t nSize)
 	std::cout
 		<< std::dec << nSize << " bytes allocated at address : "
 		<< std::hex << (void*)pMem << std::endl;
-
+	
 	Header* pHeader = (Header*)pMem;
 	pHeader->init(nSize);
-	pHeader->m_nSize;
+	pHeader->m_pHeap = HeapManager::getHeap();
+	//pHeader->m_nSize;
 
-	void* pFooterAddress = pMem + sizeof(Header) + nSize;
-	Footer* pFooter = (Footer*)pFooterAddress;
-
-	std::cout
-		<< "pFooter check value: "
-		<< std::hex << pFooter->m_iCheckValue << std::endl;
+	//void* pFooterAddress = pMem + sizeof(Header) + nSize;
+	//Footer* pFooter = (Footer*)pFooterAddress;
+	Footer* pFooter = (Footer*)(pMem + sizeof(Header) + nSize);
 	pFooter->init();
-	std::cout
-		<< "pFooter check value: "
-		<< std::hex << pFooter->m_iCheckValue << std::endl;
-
+	
 	void* pStartMemBlock = pMem + sizeof(Header);
 	return pStartMemBlock;
 }
@@ -50,6 +45,7 @@ void* operator new (size_t nSize, Heap* pHeap)
 	pHeader->init(nSize, pHeap);
 	std::cout << "header initialised" << std::endl;
 	
+	pHeader->m_pHeap = HeapManager::getHeap(pHeap);
 	//pHeap->addBytes(nSize);
 	
 	void* pFooterAddress = (char*)pMem + sizeof(Header) + nSize;
@@ -155,12 +151,10 @@ char* allocBytes (size_t size)
 
 	return pResult;
 }
-
-/*void logHeader(void* ptr)
+MemoryManager::MemoryManager()
 {
-	Header* pHeader = (Header*)ptr;
-	Log::msg("Size: " + pHeader->m_nSize);
-	Log::msg("CheckValue: " + Log::toHex(pHeader->m_iCheckValue));
-	Log::msg("Next Header: " + Log::toHex((int)pHeader->m_pNext));
-	Log::msg("Prev Header: " + Log::toHex((int)pHeader->m_pPrev));
-}*/
+}
+
+MemoryManager::~MemoryManager()
+{
+}

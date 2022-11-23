@@ -13,8 +13,6 @@ struct Header
 	Header* m_pNext;
 	Header* m_pPrev;
 	
-	//Header(void* )
-
 	bool hasChanged() { return m_iCheckValue != HEAD_VALUE; }
 	void init(size_t size)
 	{
@@ -31,8 +29,6 @@ struct Header
 		m_pHeap = pHeap;
 		init(size);
 	}
-
-	//void DebugOutput();
 };
 
 struct Footer
