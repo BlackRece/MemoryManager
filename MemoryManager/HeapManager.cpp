@@ -23,21 +23,7 @@ HeapManager::~HeapManager()
 
 Heap* HeapManager::getHeap()
 {
-	//Heap* pHeap = findHeap(tag);
-	std::cout
-		<< "HeapManager - getHeap using default heap tag...\n";
-
-	Heap* pHeap = nullptr;
-
-	if (HeapManager::s_pHeaps == nullptr)
-	{
-		HeapManager::s_pHeaps = new (nullptr) Heap();
-		return HeapManager::s_pHeaps;
-	}
-
-	//pHeap = findHeap(tag);
-
-	return pHeap;
+	return HeapManager::s_pHeaps;
 }
 
 
@@ -117,4 +103,27 @@ Heap* HeapManager::findHeap(std::string tag)
 void HeapManager::initHeap(std::string tag)
 {
 	s_pHeaps = Heap::initHeap(tag);
+}
+
+void HeapManager::initHeap()
+{
+	size_t nHeaderSize = sizeof(Header);
+	size_t nHeapSize = sizeof(Heap);
+	size_t nRequestedBytes = nHeaderSize + nHeapSize;
+	char* pMem = (char*)malloc(nRequestedBytes);
+
+	s_pHeaps = (Heap*)pMem + nHeaderSize;
+	s_pHeaps->CreateDefaultHeap();
+
+	Header* pHeader = (Header*)pMem;
+	pHeader->init(nRequestedBytes, s_pHeaps);
+
+	std::cout
+		<< "new heap initialised \n at address : "
+		<< std::hex << pMem << std::endl;
+}
+
+void HeapManager::checkHeap()
+{
+	
 }

@@ -21,7 +21,13 @@ int main(int argc, char* argv[])
         "_.-Memeory Manager Demo-._\n" 
         "==========================\n\n" 
 		"Initializing Memory Manager...\n";
-		"Here are some heap memory tests\n\n";
+
+    HeapManager::initHeap();
+
+    std::cout <<
+        "Deafault Heap initialised.\n\n"
+		"Here are some heap memory tests\n\n"
+        "Create variables:\n\n";
 
     std::cout << "\ncreate an int." << std::endl;
     int* pLength = new int;

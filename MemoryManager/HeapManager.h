@@ -1,12 +1,14 @@
 #pragma once
 #include "Heap.h"
-//#include "Logger.h"
 
 class HeapManager
 {
 public:
-	static void		initHeap(std::string tag);
+	static void		initHeap();
 	static Heap*	getHeap();
+	static void		checkHeap();
+	
+	static void		initHeap(std::string tag);
 	static Heap*	getHeap(std::string tag);
 	static Heap*	getHeap(Heap* pHeap);
 	//static void		destroyHeap(int index);

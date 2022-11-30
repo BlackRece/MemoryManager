@@ -34,7 +34,8 @@ Heap::Heap()
 
 void Heap::CreateDefaultHeap()
 {
-	m_sTag = DEFAULT_HEAP_TAG;
+	//if tag is null, then heap is default
+	//m_sTag = DEFAULT_HEAP_TAG;
 
 	m_nByteCount = 0;
 
@@ -52,7 +53,7 @@ void Heap::CreateHeap(std::string tag)
 
 	m_nByteCount = 0;
 
-	//m_pHeader = nullptr;
+	m_pHeader = nullptr;
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
