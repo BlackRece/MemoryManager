@@ -26,6 +26,13 @@ Heap* HeapManager::getHeap()
 	return HeapManager::s_pHeaps;
 }
 
+void HeapManager::addHeaderToHeap(Header* pNewHeader)
+{
+	// assign header to this heap
+	pNewHeader->m_pHeap = s_pHeaps;
+
+	s_pHeaps->addNextHeader(pNewHeader);
+}
 
 Heap* HeapManager::getHeap(const std::string tag)
 {
@@ -52,7 +59,7 @@ Heap* HeapManager::getHeap(Heap* pHeap)
 		<< "HeapManager - getHeap from heap pointer...\n";
 	
 	std::string heapTag = pHeap == nullptr 
-		? heapTag = DEFAULT_HEAP_TAG
+		? heapTag = ""//DEFAULT_HEAP_TAG
 		: heapTag = pHeap->getTag();
 		
 	return getHeap(heapTag);
@@ -69,7 +76,7 @@ Heap* HeapManager::findHeap(std::string tag)
 	Heap* pHeap = s_pHeaps;
 	
 	//while (pHeap != nullptr)
-	while (!pHeap->hasTag(tag))
+	while (!pHeap->hasTag())
 	{
 		if (pHeap->getNext() == nullptr)
 			return getHeap(tag);
@@ -107,23 +114,64 @@ void HeapManager::initHeap(std::string tag)
 
 void HeapManager::initHeap()
 {
-	size_t nHeaderSize = sizeof(Header);
+	size_t nHeadSize = sizeof(Header);
 	size_t nHeapSize = sizeof(Heap);
-	size_t nRequestedBytes = nHeaderSize + nHeapSize;
+	size_t nFootSize = sizeof(Footer);
+	size_t nRequestedBytes = nHeadSize + nHeapSize + nFootSize;
 	char* pMem = (char*)malloc(nRequestedBytes);
-
-	s_pHeaps = (Heap*)pMem + nHeaderSize;
-	s_pHeaps->CreateDefaultHeap();
-
+	
+	Heap* pHeap = (Heap*)(pMem + nHeadSize);
+	s_pHeaps = pHeap;
+	
+	//Header* pHeader = s_pHeaps->getHeader();
 	Header* pHeader = (Header*)pMem;
-	pHeader->init(nRequestedBytes, s_pHeaps);
+	pHeader->init(nRequestedBytes);
+	pHeader->m_pHeap = s_pHeaps;
+
+	//Footer* pFooter = pHeader->getFooter();
+	Footer* pFooter = (Footer*)(pMem + nHeadSize + nHeapSize);
+	pFooter->init();
+
+	s_pHeaps->CreateDefaultHeap(pHeader);
 
 	std::cout
 		<< "new heap initialised \n at address : "
-		<< std::hex << pMem << std::endl;
+		<< std::hex << s_pHeaps << std::endl;
 }
 
-void HeapManager::checkHeap()
+void HeapManager::checkHeaps()
 {
+	//walk the heap
+	Heap* pHeap = (Heap*)s_pHeaps;
+
+	//bool isDefault = false;
 	
+	while (pHeap != nullptr)
+	{
+		//if (!s_pHeaps->hasTag())
+		//{
+		//	if (isDefault)
+		//	{
+		//		//throw error
+		//		std::cout
+		//			<< "ERROR: Default header already set!";
+
+		//		return;
+		//	}
+
+		//	std::cout
+		//		<< "Default Heap has No Tag!\n"
+		//		<< "Checking Heap : [Default]\n";
+
+		//	isDefault = true;
+		//}
+		//else
+		//{
+		//	std::cout 
+		//		<< "Checking Heap : " << s_pHeaps->getTag() << std::endl;
+		//}
+
+		pHeap->checkHeap();
+		pHeap = pHeap->getNext();
+	}
 }

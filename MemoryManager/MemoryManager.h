@@ -4,7 +4,6 @@
 #include "HeapManager.h"
 #include <iostream>
 
-
 void* operator new(size_t nSize);
 void* operator new(size_t nSize, Heap* pHeap);
 //void* operator new(size_t size, std::string tag = "Default");
@@ -22,6 +21,7 @@ public:
 	MemoryManager();
 	~MemoryManager();
 
+	static void* allocBytes(size_t iSize);
 private:
 };
 
@@ -31,6 +31,5 @@ public:
 	MemoryPool(size_t iObjectSize);
 	~MemoryPool();
 
-	void* allocate(size_t iSize);
 	void deallocate(void* pointer, size_t iSize);
 };

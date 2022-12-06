@@ -133,9 +133,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="HeapManager.cpp" />
+    <ClCompile Include="HeapElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
+    <ClInclude Include="HeapElement.h" />
     <ClInclude Include="HeapManager.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="main.h" />

@@ -8,20 +8,33 @@ void* operator new(size_t nSize)
 	
 	char* pMem = allocBytes(nSize);
 	std::cout
-		<< std::dec << nSize << " bytes allocated at address : "
-		<< std::hex << (void*)pMem << std::endl;
+		<< std::dec << nSize << " bytes allocated.\n" << std::hex
+		<< "Header at : \t\t" << (void*)pMem 
+		<< "Data at : \t\t"
+		<< std::endl;
 	
 	Header* pHeader = (Header*)pMem;
 	pHeader->init(nSize);
-	pHeader->m_pHeap = HeapManager::getHeap();
-	//pHeader->m_nSize;
+	//pHeader->m_pHeap = HeapManager::getHeap();
+	HeapManager::addHeaderToHeap(pHeader);
 
-	//void* pFooterAddress = pMem + sizeof(Header) + nSize;
-	//Footer* pFooter = (Footer*)pFooterAddress;
-	Footer* pFooter = (Footer*)(pMem + sizeof(Header) + nSize);
+	//Footer* pFooter = (Footer*)(pMem + sizeof(Header) + nSize);
+	Footer* pFooter = pHeader->getFooter();
 	pFooter->init();
 	
 	void* pStartMemBlock = pMem + sizeof(Header);
+	
+	std::cout
+		<< "\naddress selected: "
+		<< std::hex << (void*)pMem
+		<< "\nheader address: "
+		<< std::hex << pHeader
+		<< "\n  data address: "
+		<< std::hex << pStartMemBlock
+		<< "\nfooter address: "
+		<< std::hex << pFooter
+		<< std::endl;
+	
 	return pStartMemBlock;
 }
 
@@ -114,7 +127,7 @@ void operator delete(void* pMem)
 		<< "footer captured at address: " 
 		<< std::hex << pFooter << std::endl;
 
-	if (pFooter->hasChanged())
+	if (pFooter->isValid())
 		std::cout
 		<< "Error: Footer check value is invalid!\n";
 	else
@@ -145,8 +158,8 @@ char* allocBytes (size_t size)
 
 	char* pResult = (char*)malloc(totalSize);
 	std::cout
-		<< "\naddress selected: " << std::hex 
-		<< (void*)pResult
+		<< "\naddress selected: " 
+		<< std::hex << (void*)pResult
 		<< std::endl;
 
 	return pResult;

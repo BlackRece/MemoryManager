@@ -26,8 +26,12 @@ int main(int argc, char* argv[])
 
     std::cout <<
         "Deafault Heap initialised.\n\n"
-		"Here are some heap memory tests\n\n"
-        "Create variables:\n\n";
+        "Here are some heap memory tests\n\n";
+	
+	std::cout << "Check Default Heap\n\n";
+	HeapManager::checkHeaps();
+	
+    std::cout << "Create variables:\n\n";
 
     std::cout << "\ncreate an int." << std::endl;
     int* pLength = new int;
@@ -38,9 +42,6 @@ int main(int argc, char* argv[])
         << "size of pLength = \t\t" << std::dec << sizeof &pLength
         << std::endl;
 
-    std::cout << "\ndelete an int." << std::endl;
-    delete pLength;
-	
     std::cout << "\ncreate a float." << std::endl;
     float* pHeight = new float;
     *pHeight = 1.2f;
@@ -50,40 +51,49 @@ int main(int argc, char* argv[])
 		<< "size of pHeight = \t\t" << std::dec<< sizeof & pHeight
         << std::endl;
 
-    std::cout << "\ndelete a float." << std::endl;
-    delete pHeight;
-	
-	std::cout << "\ncreate a char." << std::endl ;
+    std::cout << "\ncreate a char." << std::endl;
     char* pCh = new char;
     *pCh = 'x';
-	std::cout 
+    std::cout
         << "value of pCh = \t\t\t" << std::dec << *pCh << std::endl
-	    << "address of *pCh = \t\t\t" << std::hex << (void *)pCh << std::endl
-		<< "size of pCh = \t\t\t" << std::dec << sizeof & pCh
+        << "address of *pCh = \t\t\t" << std::hex << (void*)pCh << std::endl
+        << "size of pCh = \t\t\t" << std::dec << sizeof & pCh
         << std::endl;
     // NOTE: 'std::cout' treats cahr* as strings
 
-    std::cout << "\ndelete a char." << std::endl;
-    delete pCh;
-
-	std::cout << "\ncreate an array." << std::endl;
-	const int arraySize = 5;
+    std::cout << "\ncreate an array." << std::endl;
+    const int arraySize = 5;
     int* pInts = new int[arraySize];
     for (int i = 0; i < arraySize; i++)
-		pInts[i] = i;
-	
+        pInts[i] = i;
+
     std::cout
         << "value of pInts = \t\t" << std::dec << *pInts << std::endl
         << "address of pInts = \t\t" << std::hex << &pInts << std::endl
-		<< "size of pInts = \t\t" << std::dec << sizeof & pInts
+        << "size of pInts = \t\t" << std::dec << sizeof & pInts
         << std::endl;
+
+    std::cout << "Check Default Heap\n\n";
+    HeapManager::checkHeaps();
+
+    std::cout << "Create variables:\n\n";
+
+    std::cout << "\ncreate an object." << std::endl;
+    BaseObject* pObject = new BaseObject();
+    pObject->aMethod();
+
+    std::cout << "\ndelete an int." << std::endl;
+    delete pLength;
+	
+    std::cout << "\ndelete a float." << std::endl;
+    delete pHeight;	
+	
+    std::cout << "\ndelete a char." << std::endl;
+    delete pCh;
 
     std::cout << "\ndelete an array." << std::endl;
     delete[] pInts;
 
-    std::cout << "\ncreate an object." << std::endl;
-	BaseObject* pObject = new BaseObject();
-	pObject->aMethod();
 	delete pObject;
 
     std::cout << "\nEnd Of Demo." << std::endl;

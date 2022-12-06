@@ -3,7 +3,7 @@
 
 Heap::Heap()
 { 
-	m_sTag = DEFAULT_HEAP_TAG;
+	m_sTag = "";// DEFAULT_HEAP_TAG;
 	
 	m_nByteCount = 0;
 	m_nBytesAdded = 0;
@@ -32,19 +32,25 @@ Heap::Heap()
 //	::operator delete(pMem);
 //}
 
-void Heap::CreateDefaultHeap()
+void Heap::CreateDefaultHeap(Header* pHeader)
 {
 	//if tag is null, then heap is default
-	//m_sTag = DEFAULT_HEAP_TAG;
+	//m_sTag = "";
 
+	//m_sTag = (std::string)DEFAULT_HEAP_TAG;
+	
 	m_nByteCount = 0;
-
-	//m_pHeader = nullptr;
+	m_nBytesAdded = 0;
+	m_nBytesRemoved = 0;
+	
+	m_pHeader = pHeader;
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
 
-	std::cout << "heap initialised : " << std::endl;
+	std::cout 
+		<< "heap initialised : " 
+		<< m_sTag << std::endl;
 }
 
 void Heap::CreateHeap(std::string tag)
@@ -111,3 +117,83 @@ Heap* Heap::initHeap(std::string tag)
 //	
 //	//return pHeader->m_pHeap;
 //}
+
+void Heap::checkHeap()
+{
+	//TODO: Heap is empty at this point
+	//check if heap is empty
+	if (m_pHeader == nullptr)
+	{
+		std::cout << "Heap is empty" << std::endl;
+		return;
+	}
+	
+	//check if heap is valid
+	Header* pHeader = m_pHeader;
+	while (pHeader != nullptr)
+	{
+		if (!pHeader->isValid())
+		{
+			std::cout << "Header is invalid" << std::endl;
+			return;
+		}
+		
+		std::cout << "Header is valid" << std::endl;
+
+		Footer* pFooter = pHeader->getFooter();
+		if (pFooter != nullptr)
+		{
+			if (!pFooter->isValid())
+			{
+				std::cout << "Footer is invalid" << std::endl;
+				return;
+			}
+			
+			std::cout << "Footer is valid" << std::endl;
+		}
+		
+		std::cout 
+			//<< "Footer is null\n" 
+			<< std::dec
+			<< "ByteCount = " << pHeader->m_nSize << std::endl;
+		
+		pHeader = pHeader->m_pNext;
+	}
+}
+
+Header* Heap::getHeader()
+{
+	return m_pHeader == nullptr
+		? (Header*)(char*)this - sizeof(Header)
+		: m_pHeader;
+}
+
+Heap* Heap::setHeader(Header* pHeader)
+{
+	m_pHeader = pHeader;
+	return m_pHeader->m_pHeap;
+}
+
+void Heap::addNextHeader(Header* pHeader)
+{
+	Header* pTargetHeader = getLastHeader();
+	pTargetHeader->m_pNext = pHeader;
+	pHeader->m_pPrev = pTargetHeader;
+}
+
+Header* Heap::getLastHeader()
+{
+	Header* pParentHeader = m_pHeader;
+	Header* pCurrentHeader = pParentHeader->m_pNext;
+
+	int headerCount = 0;
+	while (pCurrentHeader != nullptr)
+	{
+		pParentHeader = pCurrentHeader;
+		pCurrentHeader = pParentHeader->m_pNext;
+		headerCount++;
+	}
+	
+	std::cout << "Header Count = " << headerCount << std::endl;
+	return pParentHeader;
+}

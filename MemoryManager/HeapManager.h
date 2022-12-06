@@ -6,7 +6,8 @@ class HeapManager
 public:
 	static void		initHeap();
 	static Heap*	getHeap();
-	static void		checkHeap();
+	static void		checkHeaps();
+	static void		addHeaderToHeap(Header* pHeader);
 	
 	static void		initHeap(std::string tag);
 	static Heap*	getHeap(std::string tag);
@@ -28,6 +29,6 @@ private:
 	static int		m_iHeapCount;
 	
 	//container for multiple heaps via linked list
-	static			Heap* s_pHeaps;
+	static Heap*	s_pHeaps;
 
 };

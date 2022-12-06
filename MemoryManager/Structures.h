@@ -5,18 +5,28 @@
 
 class Heap;
 
+struct Footer
+{
+	int m_iCheckValue;
+
+	bool isValid() { return m_iCheckValue == FOOT_VALUE; }
+	void init() { m_iCheckValue = FOOT_VALUE; }
+};
+
 struct Header
 {
 	size_t m_nSize;
+	size_t m_dataSize;
 	int m_iCheckValue;
 	Heap* m_pHeap;
 	Header* m_pNext;
 	Header* m_pPrev;
 	
-	bool hasChanged() { return m_iCheckValue != HEAD_VALUE; }
+	bool isValid() { return m_iCheckValue == HEAD_VALUE; }
 	void init(size_t size)
 	{
 		m_nSize = size;
+		m_dataSize = size - sizeof(Header) - sizeof(Footer);
 		
 		m_iCheckValue = HEAD_VALUE;
 		
@@ -29,14 +39,11 @@ struct Header
 		m_pHeap = pHeap;
 		init(size);
 	}
-};
 
-struct Footer
-{
-	int m_iCheckValue;
-	
-	bool hasChanged() { return m_iCheckValue != FOOT_VALUE; }
-	void init()	{ m_iCheckValue = FOOT_VALUE;	}
+	Footer* getFooter()
+	{
+		return (Footer*)((char*)this + sizeof(Header) + m_dataSize);
+	}
 };
 
 struct ObjectExample
@@ -45,3 +52,4 @@ struct ObjectExample
 	void* headPtr;
 	void* tailPtr;
 };
+
