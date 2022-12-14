@@ -128,15 +128,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseObject.cpp" />
+    <ClCompile Include="Heap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
-    <ClCompile Include="Tracker.cpp" />
+    <ClCompile Include="HeapManager.cpp" />
+    <ClCompile Include="HeapElement.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
+    <ClInclude Include="HeapElement.h" />
+    <ClInclude Include="HeapManager.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="Structures.h" />
-    <ClInclude Include="Tracker.h" />
+    <ClInclude Include="Heap.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

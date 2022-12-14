@@ -1,24 +1,60 @@
 #pragma once
+#include <exception>
 
+#define HEAD_VALUE 0xDEADC0DE
+#define FOOT_VALUE 0xDEADBEEF
 
-struct Header
-{
-	size_t size;
-	int checkValue;
-	Tracker* pTracker;
-	Header* pNext;
-	Header* pPrev;
-	
-	bool hasChanged(int headValue) { return checkValue != headValue; }
-};
+class Heap;
 
 struct Footer
 {
-	size_t size;
-	int checkValue;
-	Tracker* pTracker;
+	int m_iCheckValue;
+
+	bool isValid() { return m_iCheckValue == FOOT_VALUE; }
+	bool validate()
+	{
+		//FOOT_VALUE = -559038737
+		if (m_iCheckValue != FOOT_VALUE)
+			throw "invalid footer";
+
+		return true;
+	}
+	void init() { m_iCheckValue = FOOT_VALUE; }
+};
+
+struct Header
+{
+	size_t	m_nDataSize;
+	size_t	m_nFullSize;
+	int		m_iCheckValue;
 	
-	bool hasChanged(int footValue) { return checkValue != footValue; }
+	Heap*	m_pHeap;
+	
+	Header* m_pNext;
+	Header* m_pPrev;
+	
+	bool isValid() { return m_iCheckValue == HEAD_VALUE; }
+	bool validate() 
+	{
+		//HEAD_VALUE = -559038242
+		if (m_iCheckValue != HEAD_VALUE)
+		{
+			throw "invalid header";
+			return false;
+		}
+		
+		return true;
+	}
+	void init(size_t dataSize)
+	{
+		m_nDataSize = dataSize;
+		m_nFullSize = dataSize + sizeof(Header) + sizeof(Footer);
+		
+		m_iCheckValue = HEAD_VALUE;
+		
+		m_pNext = nullptr;
+		m_pPrev = nullptr;
+	}
 };
 
 struct ObjectExample
@@ -27,3 +63,4 @@ struct ObjectExample
 	void* headPtr;
 	void* tailPtr;
 };
+

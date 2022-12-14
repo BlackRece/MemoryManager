@@ -1,36 +1,38 @@
 #include "BaseObject.h"
 
-#include <iostream>
-#include "Tracker.h"
-
-using namespace std;
-
 BaseObject::BaseObject()
 {
-	cout << "BaseObject :: constructor \n";
+	std::cout << "BaseObject :: constructor \n";
 }
 
 BaseObject::~BaseObject()
 {
-	cout << "BaseObject :: destructor \n";
+	std::cout << "BaseObject :: destructor \n";
 }
 
 void BaseObject::aMethod()
 {
-	cout << "BaseObject :: aMethod \n";
+	std::cout << "BaseObject :: aMethod \n";
 }
 
 void* BaseObject::operator new(size_t size)
 {
+	std::cout 
+		<< "class operator new called \n"
+		<< "with size : " << size << std::endl;
 	return ::operator new(size);
 }
 
-void* operator new(size_t size, Tracker* pTracker)
-{
-	return ::operator new(size, pTracker);
-}
+//void* operator new(size_t size, Heap* pTracker)
+//{
+//	return ::operator new(size, pTracker);
+//}
 
-void BaseObject::operator delete(void* p, size_t size)
+void BaseObject::operator delete(void* pMem, size_t size)
 {
-	::operator delete(p);
+	std::cout
+		<< "class operator delete called \n"
+		<< "with size : " << size << std::endl
+		<< "and pointer : " << std::hex << pMem << std::endl;
+	::operator delete(pMem);
 }

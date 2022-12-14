@@ -1,7 +1,5 @@
 #pragma once
-#include "Tracker.h"
-
-class Tracker;
+#include <iostream>
 
 class BaseObject
 {
@@ -10,7 +8,7 @@ public:
 	~BaseObject();
 
 	static void* operator new(size_t size);
-	static void* operator new(size_t size, Tracker* pTracker);
+	//static void* operator new(size_t size, Heap* pHeap);
 	static void operator delete(void* p, size_t size);
 
 public:
