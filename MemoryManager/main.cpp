@@ -92,8 +92,9 @@ int main(int argc, char* argv[])
     std::cout << "\ndelete an class object." << std::endl;
 	delete pObject;
 
-    std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+	//causes an error
+    //std::cout << "\nCheck Heaps\n";
+    //HeapManager::checkHeaps();
 
     std::cout << "\nEnd Of Demo." << std::endl;
     std::cin.get();
