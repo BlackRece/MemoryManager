@@ -1,34 +1,22 @@
 // main.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+
 #include "MemoryManager.h"
 #include "BaseObject.h"
-#include "Logger.h"
-
-//#define DEFAULT_MAX_HEAPS 10
-
-//int getHeapCount(int argc, char* argv[]);
 
 int main(int argc, char* argv[])
 {
-    /*int heapCount = getHeapCount(argc, argv);
-    if (heapCount == 0)
-    {
-		Log::msg("No heap count specified. Exiting.\n");
-        return 1;
-    }*/
-	
     std::cout <<
         "_.-Memeory Manager Demo-._\n" 
         "==========================\n\n" 
 		"Initializing Memory Manager...\n";
 
-    HeapManager::initHeap();
+    HeapManager::createDefaultHeap();
 
     std::cout <<
-        "Deafault Heap initialised.\n\n"
+        "\nDefault Heap initialised.\n\n"
         "Here are some heap memory tests\n\n";
 	
-	std::cout << "Check Default Heap\n\n";
+	std::cout << "Check Default Heap\n";
 	HeapManager::checkHeaps();
 	
     std::cout << "Create variables:\n\n";
@@ -37,7 +25,7 @@ int main(int argc, char* argv[])
     int* pLength = new int;
     *pLength = 5;
     std::cout
-        << "value of pLength = \t\t" << std::dec << *pLength << std::endl
+        << "\nvalue of pLength = \t\t" << std::dec << *pLength << std::endl
         << "address of *pLength = \t\t" << std::hex << pLength << std::endl
         << "size of pLength = \t\t" << std::dec << sizeof &pLength
         << std::endl;
@@ -46,37 +34,44 @@ int main(int argc, char* argv[])
     float* pHeight = new float;
     *pHeight = 1.2f;
 	std::cout 
-        << "value of pHeight = \t\t" << std::dec << *pHeight << std::endl
+        << "\nvalue of pHeight = \t\t" << std::dec << *pHeight << std::endl
 	    << "address of *pHeight = \t\t" << std::hex << pHeight << std::endl
 		<< "size of pHeight = \t\t" << std::dec<< sizeof & pHeight
         << std::endl;
 
-    std::cout << "\ncreate a char." << std::endl;
-    char* pCh = new char;
+    std::cout << "\nCreate another Heap\n";
+	char heapTag[] = "Sample Heap";
+    HeapManager::createHeap(heapTag);
+	
+    std::cout << "\nCheck Heaps\n";
+    HeapManager::checkHeaps();
+
+    std::cout << "\ncreate a char on second heap." << std::endl;
+    char* pCh = new (heapTag) char;
     *pCh = 'x';
     std::cout
-        << "value of pCh = \t\t\t" << std::dec << *pCh << std::endl
+        << "\nvalue of pCh = \t\t\t" << std::dec << *pCh << std::endl
         << "address of *pCh = \t\t\t" << std::hex << (void*)pCh << std::endl
         << "size of pCh = \t\t\t" << std::dec << sizeof & pCh
         << std::endl;
-    // NOTE: 'std::cout' treats cahr* as strings
+    // NOTE: 'std::cout' treats char* as strings
 
-    std::cout << "\ncreate an array." << std::endl;
+    std::cout << "\ncreate an array of ints." << std::endl;
     const int arraySize = 5;
     int* pInts = new int[arraySize];
     for (int i = 0; i < arraySize; i++)
         pInts[i] = i;
 
     std::cout
-        << "value of pInts = \t\t" << std::dec << *pInts << std::endl
+        << "\nvalue of pInts = \t\t" << std::dec << *pInts << std::endl
         << "address of pInts = \t\t" << std::hex << &pInts << std::endl
         << "size of pInts = \t\t" << std::dec << sizeof & pInts
         << std::endl;
 
-    std::cout << "Check Default Heap\n\n";
+    std::cout << "\nCheck Heaps\n";
     HeapManager::checkHeaps();
 
-    std::cout << "Create variables:\n\n";
+    std::cout << "\nCreate variables:\n";
 
     std::cout << "\ncreate an object." << std::endl;
     BaseObject* pObject = new BaseObject();
@@ -94,10 +89,15 @@ int main(int argc, char* argv[])
     std::cout << "\ndelete an array." << std::endl;
     delete[] pInts;
 
+    std::cout << "\ndelete an class object." << std::endl;
 	delete pObject;
+
+    std::cout << "\nCheck Heaps\n";
+    HeapManager::checkHeaps();
 
     std::cout << "\nEnd Of Demo." << std::endl;
     std::cin.get();
+
 }
 
 //std::map<int, std::string> getArgMap(int argc, char* argv[]) {

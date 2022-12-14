@@ -2,17 +2,17 @@
 
 BaseObject::BaseObject()
 {
-	Log::log("BaseObject :: constructor \n");
+	std::cout << "BaseObject :: constructor \n";
 }
 
 BaseObject::~BaseObject()
 {
-	Log::log("BaseObject :: destructor \n");
+	std::cout << "BaseObject :: destructor \n";
 }
 
 void BaseObject::aMethod()
 {
-	Log::log("BaseObject :: aMethod \n");
+	std::cout << "BaseObject :: aMethod \n";
 }
 
 void* BaseObject::operator new(size_t size)

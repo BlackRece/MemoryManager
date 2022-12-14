@@ -1,16 +1,13 @@
 #pragma once
 
-#include "Structures.h"
+#include "Util.h"
 #include "HeapManager.h"
 #include <iostream>
 
 void* operator new(size_t nSize);
-void* operator new(size_t nSize, Heap* pHeap);
-//void* operator new(size_t size, std::string tag = "Default");
+void* operator new(size_t size, char pHeapTag[]);
 
 void operator delete(void* ptr);
-
-static char* allocBytes(size_t size);
 
 static void logHeader(void* ptr);
 static void setHeapCount(int heapCount) { HeapManager::setHeapCount(heapCount); }
@@ -20,8 +17,7 @@ class MemoryManager
 public:
 	MemoryManager();
 	~MemoryManager();
-
-	static void* allocBytes(size_t iSize);
+	
 private:
 };
 

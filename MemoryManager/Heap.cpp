@@ -1,10 +1,8 @@
 #include "Heap.h"
 #include <iostream>
 
-Heap::Heap()
+Heap::Heap(char heapTag[])
 { 
-	m_sTag = "";// DEFAULT_HEAP_TAG;
-	
 	m_nByteCount = 0;
 	m_nBytesAdded = 0;
 	m_nBytesRemoved = 0;
@@ -13,32 +11,21 @@ Heap::Heap()
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
+
+	strcpy_s(m_sTag, heapTag);
 	
 	std::cout << "heap initialised : " << m_sTag << std::endl;
 }
 
-//void* Heap::operator new(size_t size)
-//{
-//	//return ::operator new(size, HeapManager::getHeap());
-//	return ::operator new(size);
-//}
-//
-//void Heap::operator delete(void* pMem, size_t size)
-//{
-//	std::cout
-//		<< "heap operator delete called \n"
-//		<< "with size : " << size << std::endl
-//		<< "and pointer : " << std::hex << pMem << std::endl;
-//	::operator delete(pMem);
-//}
-
-void Heap::CreateDefaultHeap(Header* pHeader)
+Heap::~Heap()
 {
-	//if tag is null, then heap is default
-	//m_sTag = "";
+	//TODO: empty heap before deleting.
+}
 
-	//m_sTag = (std::string)DEFAULT_HEAP_TAG;
-	
+void Heap::initDefaultHeap(Header* pHeader)
+{
+	strcpy_s(m_sTag, "Default");
+
 	m_nByteCount = 0;
 	m_nBytesAdded = 0;
 	m_nBytesRemoved = 0;
@@ -48,117 +35,72 @@ void Heap::CreateDefaultHeap(Header* pHeader)
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
 
-	std::cout 
-		<< "heap initialised : " 
-		<< m_sTag << std::endl;
+	std::cout << "Default heap initialised.\n";
 }
 
-void Heap::CreateHeap(std::string tag)
+void Heap::initHeap(Header* pHeader, char heapTag[])
 {
-	m_sTag = tag;
-
+	strcpy_s(m_sTag, heapTag);
+	
 	m_nByteCount = 0;
+	m_nBytesAdded = 0;
+	m_nBytesRemoved = 0;
 
-	m_pHeader = nullptr;
+	m_pHeader = pHeader;
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
 
-	std::cout << "heap initialised : " << std::endl;
+	std::cout << std::endl << m_sTag << " heap initialised.\n";
 }
-
-
-Heap* Heap::initHeap(std::string tag)
-{
-	std::cout
-		<< "tag: " << tag << std::endl;
-
-	size_t nHeaderSize = sizeof(Header);
-	size_t nHeapSize = sizeof(Heap);
-	size_t nRequestedBytes = nHeaderSize + nHeapSize;
-	char* pMem = (char*)malloc(nRequestedBytes);
-	
-	Heap* pHeap = (Heap*)pMem + nHeaderSize;
-	pHeap->CreateHeap(tag);
-
-	Header* pHeader = (Header*)pMem;
-	pHeader->init(nRequestedBytes, pHeap);
-
-	//pHeader->init(nRequestedBytes, (Heap*)pMem + nHeaderSize);
-	//pHeader->m_pHeap = (Heap*)pMem + nHeaderSize;
-	std::cout
-		<< "new heap initialised \n at address : "
-		<< pMem << std::endl;
-	
-	
-	
-	/*m_iByteCount = 0;
-	m_sTag = "";
-	m_pHeader = nullptr;
-
-	m_pNext = nullptr;
-	m_pPrev = nullptr;*/
-	return pHeader->m_pHeap;
-}
-
-//void* Heap::allocHeap(std::string tag)
-//{
-//	initHeap();
-//	m_sTag = tag;
-//	Log::msg("heap allocated with tag: " + tag);
-//	
-//	size_t nSize = sizeof(Heap) + sizeof(Header) + sizeof(Footer);
-//	char* pMem = (char*)malloc(nSize);
-//	
-//	Header* pHeader = (Header*)pMem;
-//	pHeader->m_nSize = nSize;
-//	pHeader->m_iCheckValue = HEAD_VALUE;
-//	pHeader->m_pHeap = (Heap*)pMem + sizeof(Header);
-//	
-//	//return pHeader->m_pHeap;
-//}
 
 void Heap::checkHeap()
 {
-	//TODO: Heap is empty at this point
-	//check if heap is empty
 	if (m_pHeader == nullptr)
 	{
 		std::cout << "Heap is empty" << std::endl;
 		return;
 	}
 	
+	int nCount = 0;
+	int nBytes = 0;
+
+	char* heapTag = getTag();
+	std::cout
+		<< "\nWalking the heap..."
+		<< "\nHeap tag: " << heapTag
+		<< "\n\n address\t\t| bytes"
+		<< "\n--------\t\t|------\n";
+	
 	//check if heap is valid
 	Header* pHeader = m_pHeader;
 	while (pHeader != nullptr)
 	{
-		if (!pHeader->isValid())
-		{
-			std::cout << "Header is invalid" << std::endl;
-			return;
-		}
+		pHeader->validate();
 		
-		std::cout << "Header is valid" << std::endl;
-
-		Footer* pFooter = pHeader->getFooter();
-		if (pFooter != nullptr)
-		{
-			if (!pFooter->isValid())
-			{
-				std::cout << "Footer is invalid" << std::endl;
-				return;
-			}
-			
-			std::cout << "Footer is valid" << std::endl;
-		}
+		Footer* pFooter = Util::getFooter(pHeader);
+		if (pFooter == nullptr)
+			throw "Footer not allocated";
 		
-		std::cout 
-			//<< "Footer is null\n" 
-			<< std::dec
-			<< "ByteCount = " << pHeader->m_nSize << std::endl;
+		pFooter->validate();
+		
+		nCount++;
+		nBytes += (int)pHeader->m_nFullSize;
+		
+		std::cout
+			<< std::hex << pHeader << "\t| " 
+			<< std::dec << pHeader->m_nFullSize
+			<< std::endl;
 		
 		pHeader = pHeader->m_pNext;
 	}
+	
+	std::cout 
+		<< "\nByteCount = " 
+		<< std::dec	<< nBytes
+		<< "\nvariable count = "
+		<< std::dec << nCount
+		<< std::endl;
 }
 
 Header* Heap::getHeader()
@@ -196,4 +138,10 @@ Header* Heap::getLastHeader()
 	
 	std::cout << "Header Count = " << headerCount << std::endl;
 	return pParentHeader;
+}
+
+void Heap::addHeap(Heap* pHeap)
+{
+	setNextHeap(pHeap);
+	pHeap->setPrevHeap(this);
 }

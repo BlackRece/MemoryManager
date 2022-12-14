@@ -34,38 +34,33 @@ void HeapManager::addHeaderToHeap(Header* pNewHeader)
 	s_pHeaps->addNextHeader(pNewHeader);
 }
 
-Heap* HeapManager::getHeap(const std::string tag)
+void HeapManager::addHeaderToHeap(Header* pNewHeader, char sHeapTag[])
 {
-	//Heap* pHeap = findHeap(tag);
+	Heap* pHeap = getHeap(sHeapTag);
+	
+	pNewHeader->m_pHeap = pHeap;
+	pHeap->addNextHeader(pNewHeader);
+}
+
+Heap* HeapManager::getHeap(char tag[])
+{
 	std::cout
 		<< "HeapManager - getHeap from heap tag...\n";
 
-	Heap* pHeap = nullptr;
+	Heap* pTargetHeap = HeapManager::getHeap();
 
-	if (HeapManager::s_pHeaps == nullptr)
+	while (pTargetHeap != nullptr)
 	{
-		HeapManager::s_pHeaps = new (nullptr) Heap();
-		return HeapManager::s_pHeaps;
+		int result = strcmp(pTargetHeap->getTag(), tag);
+		if (result == 0) return pTargetHeap;
+
+		pTargetHeap = pTargetHeap->getNextHeap();
 	}
-	
-	pHeap = findHeap(tag);
-	
-	return pHeap;
+
+	return HeapManager::getHeap();
 }
 
-Heap* HeapManager::getHeap(Heap* pHeap)
-{
-	std::cout
-		<< "HeapManager - getHeap from heap pointer...\n";
-	
-	std::string heapTag = pHeap == nullptr 
-		? heapTag = ""//DEFAULT_HEAP_TAG
-		: heapTag = pHeap->getTag();
-		
-	return getHeap(heapTag);
-}
-
-Heap* HeapManager::findHeap(std::string tag)
+Heap* HeapManager::findHeap(char tag[])
 {
 	std::cout
 		<< "HeapManager - findHeap...\n";
@@ -78,10 +73,10 @@ Heap* HeapManager::findHeap(std::string tag)
 	//while (pHeap != nullptr)
 	while (!pHeap->hasTag())
 	{
-		if (pHeap->getNext() == nullptr)
+		if (pHeap->getNextHeap() == nullptr)
 			return getHeap(tag);
 		
-		pHeap = pHeap->getNext();
+		pHeap = pHeap->getNextHeap();
 	}
 
 	return pHeap;
@@ -107,71 +102,87 @@ Heap* HeapManager::findHeap(std::string tag)
 //	return nullptr;
 //}
 
-void HeapManager::initHeap(std::string tag)
+void HeapManager::createDefaultHeap()
 {
-	s_pHeaps = Heap::initHeap(tag);
-}
-
-void HeapManager::initHeap()
-{
-	size_t nHeadSize = sizeof(Header);
+	if (s_pHeaps != nullptr)
+		return;
+	
 	size_t nHeapSize = sizeof(Heap);
-	size_t nFootSize = sizeof(Footer);
-	size_t nRequestedBytes = nHeadSize + nHeapSize + nFootSize;
-	char* pMem = (char*)malloc(nRequestedBytes);
-	
-	Heap* pHeap = (Heap*)(pMem + nHeadSize);
-	s_pHeaps = pHeap;
-	
-	//Header* pHeader = s_pHeaps->getHeader();
-	Header* pHeader = (Header*)pMem;
-	pHeader->init(nRequestedBytes);
-	pHeader->m_pHeap = s_pHeaps;
+	char* pMem = Util::allocBytes(nHeapSize);
 
-	//Footer* pFooter = pHeader->getFooter();
-	Footer* pFooter = (Footer*)(pMem + nHeadSize + nHeapSize);
+	Heap* pHeap = (Heap*)Util::getPointer(pMem);
+	
+	Header* pHeader = Util::getHeader(pHeap);
+	pHeader->init(nHeapSize);
+	pHeader->m_pHeap = pHeap;
+	
+	Footer* pFooter = Util::getFooter(pHeap);
 	pFooter->init();
-
-	s_pHeaps->CreateDefaultHeap(pHeader);
-
+	
+	s_pHeaps = pHeap;
+	s_pHeaps->initDefaultHeap(pHeader);
+	
 	std::cout
-		<< "new heap initialised \n at address : "
-		<< std::hex << s_pHeaps << std::endl;
+		<< "\ndefault heap created at address : "
+		<< std::hex << s_pHeaps 
+		<< "\nheap header : " << pHeader
+		<< "\nheap footer : " << pFooter
+		<< std::endl;
 }
 
 void HeapManager::checkHeaps()
 {
-	//walk the heap
 	Heap* pHeap = (Heap*)s_pHeaps;
 
-	//bool isDefault = false;
-	
 	while (pHeap != nullptr)
 	{
-		//if (!s_pHeaps->hasTag())
-		//{
-		//	if (isDefault)
-		//	{
-		//		//throw error
-		//		std::cout
-		//			<< "ERROR: Default header already set!";
-
-		//		return;
-		//	}
-
-		//	std::cout
-		//		<< "Default Heap has No Tag!\n"
-		//		<< "Checking Heap : [Default]\n";
-
-		//	isDefault = true;
-		//}
-		//else
-		//{
-		//	std::cout 
-		//		<< "Checking Heap : " << s_pHeaps->getTag() << std::endl;
-		//}
-
 		pHeap->checkHeap();
-		pHeap = pHeap->getNext();
+		pHeap = pHeap->getNextHeap();
 	}
+}
+
+void HeapManager::createHeap(char sHeapTag[])
+{
+	size_t nHeapSize = sizeof(Heap);
+	char* pMem = Util::allocBytes(nHeapSize);
+
+	Heap* pHeap = (Heap*)Util::getPointer(pMem);
+
+	Header* pHeader = Util::getHeader(pHeap);
+	pHeader->init(nHeapSize);
+	pHeader->m_pHeap = pHeap;
+
+	Footer* pFooter = Util::getFooter(pHeap);
+	pFooter->init();
+
+	pHeap->initHeap(pHeader, sHeapTag);
+
+	std::cout
+		<< "\nnew heap created at address : "
+		<< std::hex << s_pHeaps
+		<< "\nheap header : " << pHeader
+		<< "\nheap footer : " << pFooter
+		<< std::endl;
+	
+	Heap* pTargetHeap = getLastHeap();
+	
+	pTargetHeap->setNextHeap(pHeap);
+	pHeap->setPrevHeap(pTargetHeap);
+}
+
+Heap* HeapManager::getLastHeap()
+{
+	Heap* pTargetHeap = HeapManager::getHeap();
+	Heap* pNextHeap = pTargetHeap->getNextHeap();
+
+	int heapCount = 1;
+	while (pNextHeap != nullptr)
+	{
+		pTargetHeap = pNextHeap;
+		pNextHeap = pTargetHeap->getNextHeap();
+		heapCount++;
+	}
+
+	std::cout << "Heaps Counted = " << heapCount << std::endl;
+	return pTargetHeap;
 }

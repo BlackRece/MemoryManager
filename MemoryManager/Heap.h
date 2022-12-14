@@ -1,34 +1,22 @@
 #pragma once
 #include <cmath>
-#include <string>
-#include "Structures.h"
+#include <string.h>
+#include "Util.h"
 
-//#define DEFAULT_HEAP_TAG "Default"
+#define TAG_LENGTH 30
 
 class Heap
 {
 public:
-	//Heap() {};
-	Heap();
-	//~Heap() {};
+	Heap(char heapTag[]);
+	~Heap();
 	
-	//static int getBytesInUse() { return m_iByteCount; }
-
-	//static void* operator new(size_t size);
-	//static void* operator new(size_t size, Heap* heap);
-	//static void operator delete(void* pMem, size_t size);
-	//void* operator new(size_t size, std::string tag);
-	//void operator delete(void* pMem);
-
-	void				CreateDefaultHeap(Header* pHeader);
-	void				CreateHeap(std::string tag);
-	static Heap*		initHeap(std::string tag);
+	void				initDefaultHeap(Header* pHeader);
+	void				initHeap(Header* pHeader, char sHeapTag[]);
 	void				checkHeap();
 	
 	Heap*				setHeader(Header* pHeader);
 	void				addNextHeader(Header* pHeader);
-
-	//void*				allocHeap(std::string tag);
 
 	//void				addBytes(size_t size) { m_iByteCount += size; }
 	//void				delBytes(size_t size) { m_iByteCount -= size; }
@@ -39,18 +27,18 @@ public:
 	size_t				getBytes() { return m_nBytesAdded - m_nBytesRemoved; }
 
 	const bool			hasTag() { return m_sTag != ""; }
-	void				setTag(std::string nameTag) { m_sTag = nameTag; }
-	const std::string	getTag() { return m_sTag; }
+	char*				getTag() { return m_sTag; }
 	
 	// this header
 	Header*				getHeader();
 	
 	// linked list of heaps
-	Heap*				getNext() { return m_pNext; }
-	void				setNext(Heap* pNext) { m_pNext = pNext; }
+	void				addHeap(Heap* pHeap);
+	Heap*				getNextHeap() { return m_pNext; }
+	void				setNextHeap(Heap* pNext) { m_pNext = pNext; }
 	
 	Heap*				getPrev() { return m_pPrev; }
-	void				setPrev(Heap* pPrev) { m_pPrev = pPrev; }
+	void				setPrevHeap(Heap* pPrev) { m_pPrev = pPrev; }
 	
 	// linked list of headers
 	Header*				getNextHeader() { return m_pHeader->m_pNext; }
@@ -58,7 +46,7 @@ public:
 	
 private:	
 	// heap info
-	std::string			m_sTag;
+	char				m_sTag[TAG_LENGTH];
 	Heap*				m_pNext;
 	Heap*				m_pPrev;
 	

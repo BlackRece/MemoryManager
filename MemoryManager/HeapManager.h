@@ -1,19 +1,20 @@
 #pragma once
 #include "Heap.h"
+#include "Util.h"
 
 class HeapManager
 {
 public:
-	static void		initHeap();
+	static void		createDefaultHeap();
 	static Heap*	getHeap();
 	static void		checkHeaps();
-	static void		addHeaderToHeap(Header* pHeader);
 	
-	static void		initHeap(std::string tag);
-	static Heap*	getHeap(std::string tag);
-	static Heap*	getHeap(Heap* pHeap);
+	static void		createHeap(char heapTag[]);
+	static void		addHeaderToHeap(Header* pHeader);
+	static void		addHeaderToHeap(Header* pNewHeader, char sHeapTag[]);
+	
+	static Heap*	getHeap(char tag[]);
 	//static void		destroyHeap(int index);
-	//static Heap*	createHeap(std::string tag);
 	//static bool		heapExists(std::string tag) { return getHeap(tag) != nullptr; }
 	static void		setHeapCount(const int heapCount) { m_iHeapCount = heapCount; }
 	
@@ -23,9 +24,10 @@ private:
 	HeapManager();
 	~HeapManager();
 
-	static Heap*	findHeap(std::string tag);
+	static Heap*	getLastHeap();
+	static Heap*	findHeap(char tag[]);
 	static int		getHeapCount() { return m_iHeapCount; }
-
+	
 	static int		m_iHeapCount;
 	
 	//container for multiple heaps via linked list
