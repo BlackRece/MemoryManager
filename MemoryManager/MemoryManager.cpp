@@ -2,10 +2,11 @@
 
 void* operator new(size_t nSize)
 {
-	//TODO: increase heap's byte counter by size of new object
+	if (!HeapManager::isDebugEnabled())
+		return malloc(nSize);
+	
 	std::cout
 		<< "global operator new called ... \n";
-		//<< "with size : " << std::dec << nSize << std::endl;
 	
 	char* pMem = Util::allocBytes(nSize);
 	
@@ -36,7 +37,9 @@ void* operator new(size_t nSize)
 
 void* operator new (size_t nSize, char pHeapTag[])
 {
-	//TODO: increase heap's byte counter by size of new object
+	if (!HeapManager::isDebugEnabled())
+		return malloc(nSize);
+
 	std::cout
 		<< "global operator new called ..."
 		<< "with size: " << nSize
@@ -72,8 +75,12 @@ void* operator new (size_t nSize, char pHeapTag[])
 
 void operator delete(void* pMem)
 {
-	//TODO: remove header from heap's linked list
-	//TODO: subtract freed bytes from heap's counters
+	if (!HeapManager::isDebugEnabled())
+	{
+		free(pMem);
+		return;
+	}
+
 	std::cout 
 		<< "global operator delete called \n"
 		<< "for address : " << std::hex << pMem
@@ -92,17 +99,10 @@ void operator delete(void* pMem)
 		<< std::hex << pFooter << std::endl;
 	pFooter->validate();
 		
+	HeapManager::delHeaderFromHeap(pHeader);
+	
 	free(pHeader);
 	std::cout 
 		<< "object deleted : bytes freed = "
 		<< std::dec << nFullSize << std::endl;
-}
-
-
-MemoryManager::MemoryManager()
-{
-}
-
-MemoryManager::~MemoryManager()
-{
 }

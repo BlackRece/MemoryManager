@@ -45,6 +45,7 @@ struct Header
 		
 		return true;
 	}
+	
 	void init(size_t dataSize)
 	{
 		m_nDataSize = dataSize;

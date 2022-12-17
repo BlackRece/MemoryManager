@@ -2,6 +2,7 @@
 #include "HeapManager.h"
 
 Heap* HeapManager::s_pHeaps = nullptr;
+bool HeapManager::m_bDebugMode = true;
 
 HeapManager::HeapManager()
 {
@@ -11,35 +12,29 @@ HeapManager::~HeapManager()
 {
 }
 
-//Heap* HeapManager::makeHeap(std::string tag)
-//{
-//	Heap* pHeap = new Heap();
-//	pHeap->initHeap();
-//	
-//	//m_pHeaps = (Heap*) Heap(tag);
-//	pHeap->setTag(tag);
-//	return pHeap;
-//}
-
-Heap* HeapManager::getHeap()
+void HeapManager::addHeaderToHeap(Header* pHeader)
 {
-	return HeapManager::s_pHeaps;
+	Heap* pDefaultHeap = s_pHeaps;
+	pHeader->m_pHeap = pDefaultHeap;
+
+	pDefaultHeap->addHeader(pHeader);
+	pDefaultHeap->addBytes(pHeader->m_nFullSize);
 }
 
-void HeapManager::addHeaderToHeap(Header* pNewHeader)
-{
-	// assign header to this heap
-	pNewHeader->m_pHeap = s_pHeaps;
-
-	s_pHeaps->addNextHeader(pNewHeader);
-}
-
-void HeapManager::addHeaderToHeap(Header* pNewHeader, char sHeapTag[])
+void HeapManager::addHeaderToHeap(Header* pHeader, char sHeapTag[])
 {
 	Heap* pHeap = getHeap(sHeapTag);
-	
-	pNewHeader->m_pHeap = pHeap;
-	pHeap->addNextHeader(pNewHeader);
+	pHeader->m_pHeap = pHeap;
+
+	pHeap->addHeader(pHeader);
+	pHeap->addBytes(pHeader->m_nFullSize);
+}
+
+void HeapManager::delHeaderFromHeap(Header* pHeader)
+{
+	Heap* pHeap = pHeader->m_pHeap;
+	pHeap->subBytes(pHeader->m_nFullSize);
+	pHeap->delHeader(pHeader);
 }
 
 Heap* HeapManager::getHeap(char tag[])
@@ -60,50 +55,18 @@ Heap* HeapManager::getHeap(char tag[])
 	return HeapManager::getHeap();
 }
 
-Heap* HeapManager::findHeap(char tag[])
+void HeapManager::initDefaultHeap(bool bDebugMobe)
 {
-	std::cout
-		<< "HeapManager - findHeap...\n";
-
-	if (s_pHeaps == nullptr)
-		return getHeap(tag);
+	HeapManager::m_bDebugMode = bDebugMobe;
 	
-	Heap* pHeap = s_pHeaps;
-	
-	//while (pHeap != nullptr)
-	while (!pHeap->hasTag())
+	if (!isDebugEnabled())
 	{
-		if (pHeap->getNextHeap() == nullptr)
-			return getHeap(tag);
-		
-		pHeap = pHeap->getNextHeap();
+		std::cout
+			<< "Memory Manager not available in release mode.\n";
+
+		return;
 	}
 
-	return pHeap;
-}
-
-//Heap* HeapManager::findHeap(std::string tag)
-//{
-//	Log::msg("Searching for heap name: " + tag);
-//	Heap* pHeap = (Heap*)s_pHeaps;
-//	
-//	while (pHeap != nullptr)
-//	{
-//		if (pHeap->hasTag(tag))
-//		{
-//			Log::msg("Heap " + tag + "found.");
-//			return pHeap;
-//		}
-//		
-//		pHeap = pHeap->getNext();
-//	}
-//	
-//	Log::msg("Heap " + tag + "not found");
-//	return nullptr;
-//}
-
-void HeapManager::createDefaultHeap()
-{
 	if (s_pHeaps != nullptr)
 		return;
 	
@@ -130,19 +93,11 @@ void HeapManager::createDefaultHeap()
 		<< std::endl;
 }
 
-void HeapManager::checkHeaps()
+void HeapManager::addHeap(char sHeapTag[])
 {
-	Heap* pHeap = (Heap*)s_pHeaps;
+	if (s_pHeaps == nullptr)
+		return;
 
-	while (pHeap != nullptr)
-	{
-		pHeap->checkHeap();
-		pHeap = pHeap->getNextHeap();
-	}
-}
-
-void HeapManager::createHeap(char sHeapTag[])
-{
 	size_t nHeapSize = sizeof(Heap);
 	char* pMem = Util::allocBytes(nHeapSize);
 
@@ -170,6 +125,27 @@ void HeapManager::createHeap(char sHeapTag[])
 	pHeap->setPrevHeap(pTargetHeap);
 }
 
+void HeapManager::delHeap(char heapTag[])
+{
+	Heap* pHeap = getHeap(heapTag);
+	pHeap->clearHeap();
+
+	Header* pHeader = pHeap->getHeapHeader();
+	pHeap->delHeader(pHeader);
+	free(pHeader);
+}
+
+void HeapManager::checkHeaps()
+{
+	Heap* pHeap = (Heap*)s_pHeaps;
+
+	while (pHeap != nullptr)
+	{
+		pHeap->checkHeap();
+		pHeap = pHeap->getNextHeap();
+	}
+}
+
 Heap* HeapManager::getLastHeap()
 {
 	Heap* pTargetHeap = HeapManager::getHeap();
@@ -185,4 +161,21 @@ Heap* HeapManager::getLastHeap()
 
 	std::cout << "Heaps Counted = " << heapCount << std::endl;
 	return pTargetHeap;
+}
+
+void HeapManager::clearHeaps()
+{
+	Heap* pHeap = (Heap*)s_pHeaps;
+
+	while (pHeap != nullptr)
+	{
+		pHeap->clearHeap();
+		pHeap = pHeap->getNextHeap();
+	}
+}
+
+void HeapManager::clearHeap(char heapTag[])
+{
+	Heap* pHeap = getHeap(heapTag);
+	pHeap->clearHeap();
 }

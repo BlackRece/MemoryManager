@@ -11,26 +11,23 @@ public:
 	Heap(char heapTag[]);
 	~Heap();
 	
-	void				initDefaultHeap(Header* pHeader);
+	void				initHeap();
 	void				initHeap(Header* pHeader, char sHeapTag[]);
+	void				initDefaultHeap(Header* pHeader);
 	void				checkHeap();
+	void				clearHeap();
 	
 	Heap*				setHeader(Header* pHeader);
-	void				addNextHeader(Header* pHeader);
+	void				addHeader(Header* pHeader);
+	void				delHeader(Header* pHeader);
+	Header*				getHeapHeader() { return m_pHeader; }
 
-	//void				addBytes(size_t size) { m_iByteCount += size; }
-	//void				delBytes(size_t size) { m_iByteCount -= size; }
-	//size_t				getBytes() { return m_iByteCount; }
-	
-	void				addBytes(size_t byteCount) { m_nBytesAdded += std::abs((int)byteCount); }
-	void				subBytes(size_t byteCount) { m_nBytesRemoved += std::abs((int)byteCount); }
-	size_t				getBytes() { return m_nBytesAdded - m_nBytesRemoved; }
+	void				addBytes(size_t byteCount);
+	void				subBytes(size_t byteCount);
+	size_t				getBytes();
 
 	const bool			hasTag() { return m_sTag != ""; }
 	char*				getTag() { return m_sTag; }
-	
-	// this header
-	Header*				getHeader();
 	
 	// linked list of heaps
 	void				addHeap(Heap* pHeap);
@@ -57,4 +54,5 @@ private:
 	// header info
 	Header*				m_pHeader;
 	Header*				getLastHeader();
+	bool				isHeapHeader(Header* pHeader);
 };

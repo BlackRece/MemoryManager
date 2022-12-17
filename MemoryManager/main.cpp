@@ -3,6 +3,8 @@
 #include "MemoryManager.h"
 #include "BaseObject.h"
 
+#define _DEBUG_MODE true
+
 int main(int argc, char* argv[])
 {
     std::cout <<
@@ -10,7 +12,7 @@ int main(int argc, char* argv[])
         "==========================\n\n" 
 		"Initializing Memory Manager...\n";
 
-    HeapManager::createDefaultHeap();
+    HeapManager::initDefaultHeap(_DEBUG_MODE);
 
     std::cout <<
         "\nDefault Heap initialised.\n\n"
@@ -41,7 +43,7 @@ int main(int argc, char* argv[])
 
     std::cout << "\nCreate another Heap\n";
 	char heapTag[] = "Sample Heap";
-    HeapManager::createHeap(heapTag);
+    HeapManager::addHeap(heapTag);
 	
     std::cout << "\nCheck Heaps\n";
     HeapManager::checkHeaps();
@@ -80,6 +82,9 @@ int main(int argc, char* argv[])
     std::cout << "\ndelete an int." << std::endl;
     delete pLength;
 	
+    std::cout << "\nCheck Heaps\n";
+    HeapManager::checkHeaps();
+
     std::cout << "\ndelete a float." << std::endl;
     delete pHeight;	
 	
@@ -92,20 +97,27 @@ int main(int argc, char* argv[])
     std::cout << "\ndelete an class object." << std::endl;
 	delete pObject;
 
-	//causes an error
-    //std::cout << "\nCheck Heaps\n";
-    //HeapManager::checkHeaps();
+    std::cout << "\nCheck Heaps\n";
+    HeapManager::checkHeaps();
+
+    std::cout << "\ncreate a double." << std::endl;
+    double* pWidth = new double;
+    *pWidth = 1.0025;
+    std::cout
+        << "\nvalue of pWidth = \t\t" << std::dec << *pWidth << std::endl
+        << "address of *pWidth = \t\t" << std::hex << pWidth << std::endl
+        << "size of pWidth = \t\t" << std::dec << sizeof & pWidth
+        << std::endl;
+
+    std::cout << "\nCheck Heaps\n";
+    HeapManager::checkHeaps();
+
+    std::cout << "\nClear Heaps\n";
+    HeapManager::clearHeaps();
+
+    std::cout << "\nCheck Heaps\n";
+    HeapManager::checkHeaps();
 
     std::cout << "\nEnd Of Demo." << std::endl;
     std::cin.get();
-
 }
-
-//std::map<int, std::string> getArgMap(int argc, char* argv[]) {
-//    std::map<int, std::string> argMap;
-//
-//    for (int i = 0; i < argc; i++)
-//        argMap[i] = argv[i];
-//
-//    return argMap;
-//}
