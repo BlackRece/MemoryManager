@@ -21,9 +21,6 @@
     <ClCompile Include="BaseObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HeapManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MemoryManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Heap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HeapManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="main.h">

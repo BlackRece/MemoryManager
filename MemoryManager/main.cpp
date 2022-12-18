@@ -12,14 +12,14 @@ int main(int argc, char* argv[])
         "==========================\n\n" 
 		"Initializing Memory Manager...\n";
 
-    HeapManager::initDefaultHeap(_DEBUG_MODE);
+    MemoryManager::initDefaultHeap(_DEBUG_MODE);
 
     std::cout <<
         "\nDefault Heap initialised.\n\n"
         "Here are some heap memory tests\n\n";
 	
 	std::cout << "Check Default Heap\n";
-	HeapManager::checkHeaps();
+	MemoryManager::checkHeaps();
 	
     std::cout << "Create variables:\n\n";
 
@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
 
     std::cout << "\nCreate another Heap\n";
 	char heapTag[] = "Sample Heap";
-    HeapManager::addHeap(heapTag);
+    MemoryManager::addHeap(heapTag);
 	
     std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+    MemoryManager::checkHeaps();
 
     std::cout << "\ncreate a char on second heap." << std::endl;
     char* pCh = new (heapTag) char;
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
         << std::endl;
 
     std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+    MemoryManager::checkHeaps();
 
     std::cout << "\nCreate variables:\n";
 
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     delete pLength;
 	
     std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+    MemoryManager::checkHeaps();
 
     std::cout << "\ndelete a float." << std::endl;
     delete pHeight;	
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 	delete pObject;
 
     std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+    MemoryManager::checkHeaps();
 
     std::cout << "\ncreate a double." << std::endl;
     double* pWidth = new double;
@@ -110,13 +110,13 @@ int main(int argc, char* argv[])
         << std::endl;
 
     std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+    MemoryManager::checkHeaps();
 
     std::cout << "\nClear Heaps\n";
-    HeapManager::clearHeaps();
+    MemoryManager::clearHeaps();
 
     std::cout << "\nCheck Heaps\n";
-    HeapManager::checkHeaps();
+    MemoryManager::checkHeaps();
 
     std::cout << "\nEnd Of Demo." << std::endl;
     std::cin.get();
