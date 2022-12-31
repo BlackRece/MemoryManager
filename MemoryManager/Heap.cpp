@@ -1,28 +1,6 @@
 #include "Heap.h"
-#include <iostream>
 
-Heap::Heap(char heapTag[])
-{ 
-	m_nByteCount = 0;
-	m_nBytesAdded = 0;
-	m_nBytesRemoved = 0;
-	
-	m_pHeader = nullptr;
-
-	m_pNext = nullptr;
-	m_pPrev = nullptr;
-
-	strcpy_s(m_sTag, heapTag);
-	
-	std::cout << "heap initialised : " << m_sTag << std::endl;
-}
-
-Heap::~Heap()
-{
-	//TODO: empty heap before deleting.
-}
-
-void Heap::initHeap()
+Str* Heap::init(Header* pHeader, Str* sHeapTag)
 {
 	m_nByteCount = 0;
 	m_nBytesAdded = 0;
@@ -30,30 +8,17 @@ void Heap::initHeap()
 
 	m_pNext = nullptr;
 	m_pPrev = nullptr;
-}
 
-void Heap::initDefaultHeap(Header* pHeader)
-{
-	initHeap();
+	m_pPool = nullptr;
 
-	strcpy_s(m_sTag, "Default");
+	m_sTag.set(sHeapTag->str);
 	
-	m_pHeader = pHeader;
-	addBytes(pHeader->m_nFullSize);
-
-	std::cout << "Default heap initialised.\n";
-}
-
-void Heap::initHeap(Header* pHeader, char heapTag[])
-{
-	initHeap();
-
-	strcpy_s(m_sTag, heapTag);
-	
-	m_pHeader = pHeader;
+	m_pRootHeader = pHeader;
 	addBytes(pHeader->m_nFullSize);
 	
-	std::cout << std::endl << m_sTag << " heap initialised.\n";
+	std::cout << std::endl << m_sTag.str << " heap initialised.\n";
+	
+	return &m_sTag;
 }
 
 void Heap::addBytes(size_t byteCount) 
@@ -70,9 +35,9 @@ void Heap::subBytes(size_t byteCount)
 	m_nByteCount -= nByteAmount;
 }
 
-void Heap::checkHeap()
+void Heap::check()
 {
-	if (m_pHeader == nullptr)
+	if (m_pRootHeader == nullptr)
 	{
 		std::cout << "Heap is empty" << std::endl;
 		return;
@@ -81,14 +46,13 @@ void Heap::checkHeap()
 	int nCount = 0;
 	int nBytes = 0;
 
-	char* heapTag = getTag();
 	std::cout
 		<< "\nWalking the heap..."
-		<< "\nHeap tag: " << heapTag
+		<< "\nHeap tag: " << m_sTag.str
 		<< "\n\n address\t\t| bytes"
 		<< "\n--------\t\t|------\n";
 	
-	Header* pHeader = m_pHeader;
+	Header* pHeader = m_pRootHeader;
 	while (pHeader != nullptr)
 	{
 		pHeader->validate();
@@ -127,21 +91,20 @@ void Heap::checkHeap()
 		<< std::endl;
 }
 
-void Heap::clearHeap()
+void Heap::clear()
 {
-	if (m_pHeader == nullptr)
+	if (m_pRootHeader == nullptr)
 	{
 		std::cout << "Heap is empty" << std::endl;
 		return;
 	}
 
-	char* heapTag = getTag();
 	std::cout
-		<< "\Clearing heap: " << heapTag
+		<< "\Clearing heap: " << m_sTag.str
 		<< "\n\n address\t\t| bytes"
 		<< "\n--------\t\t|------\n";
 
-	Header* pHeader = m_pHeader;
+	Header* pHeader = m_pRootHeader;
 	while (pHeader != nullptr)
 	{
 		pHeader->validate();
@@ -160,10 +123,7 @@ void Heap::clearHeap()
 		Header* pNextHeader = pHeader->m_pNext;
 
 		if (!isHeapHeader(pHeader))
-		{
 			delHeader(pHeader);
-			free(pHeader);
-		}
 
 		pHeader = pNextHeader;
 	}
@@ -172,22 +132,26 @@ void Heap::clearHeap()
 bool Heap::isHeapHeader(Header* pHeader)
 {
 	Heap* pHeap = pHeader->m_pHeap;
-	Header* pHeapHeader = pHeap->m_pHeader;
+	Header* pHeapHeader = pHeap->m_pRootHeader;
 
 	return pHeader == pHeapHeader;
 }
 
 Heap* Heap::setHeader(Header* pHeader)
 {
-	m_pHeader = pHeader;
-	return m_pHeader->m_pHeap;
+	m_pRootHeader = pHeader;
+	return m_pRootHeader->m_pHeap;
 }
 
 void Heap::addHeader(Header* pHeader)
 {
 	Header* pTargetHeader = getLastHeader();
 	pTargetHeader->m_pNext = pHeader;
+	
 	pHeader->m_pPrev = pTargetHeader;
+	pHeader->m_pHeap = pTargetHeader->m_pHeap;
+	
+	addBytes(pHeader->m_nFullSize);
 }
 
 void Heap::delHeader(Header* pHeader)
@@ -200,29 +164,43 @@ void Heap::delHeader(Header* pHeader)
 
 	if (pNextHeader != nullptr)
 		pNextHeader->m_pPrev = pPrevHeader;
+	
+	subBytes(pHeader->m_nFullSize);
+	free(pHeader);
 }
 
 Header* Heap::getLastHeader()
 {
-	Header* pParentHeader = m_pHeader;
-	Header* pCurrentHeader = pParentHeader->m_pNext;
+	Header* pCurrentHeader = m_pRootHeader;
+	Header* pNextHeader = pCurrentHeader->m_pNext;
 
-	int headerCount = 0;
-	while (pCurrentHeader != nullptr)
+	int headerCount = 1;
+	while (pNextHeader != nullptr)
 	{
-		pParentHeader = pCurrentHeader;
-		pCurrentHeader = pParentHeader->m_pNext;
+		pCurrentHeader = pNextHeader;
+		pNextHeader = pCurrentHeader->m_pNext;
 		headerCount++;
 	}
 	
 	std::cout << "Header Count = " << headerCount << std::endl;
-	return pParentHeader;
+	return pCurrentHeader;
 }
 
 void Heap::addHeap(Heap* pHeap)
 {
 	setNextHeap(pHeap);
 	pHeap->setPrevHeap(this);
+}
+
+Heap* Heap::findHeap(Str sTag)
+{
+	if (hasTag(sTag))
+		return this;
+	
+	if (m_pNext != nullptr)
+		return m_pNext->findHeap(sTag);
+	
+	return nullptr;
 }
 
 size_t Heap::getBytes() 
@@ -242,4 +220,33 @@ size_t Heap::getBytes()
 	}
 
 	return nTally;
+}
+
+Pool* Heap::getPoolWithBytesFree(size_t nSize)
+{
+	Pool* pPool = m_pPool;
+
+	while (pPool != nullptr)
+	{
+		if (pPool->hasBytesFree(nSize))
+			return pPool;
+
+		pPool = pPool->getNext();
+	}
+
+	return pPool;
+}
+
+void Heap::addPool(Pool* pPool)
+{
+	if (m_pPool == nullptr)
+	{
+		m_pPool = pPool;
+		return;
+	}
+
+	Pool* pLast = m_pPool->getLast();
+
+	pLast->setNext(pPool);
+	pPool->setPrev(pLast);
 }

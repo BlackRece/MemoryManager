@@ -132,6 +132,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="HeapElement.cpp" />
+    <ClCompile Include="MemoryPool.cpp" />
+    <ClCompile Include="Pool.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +141,8 @@
     <ClInclude Include="HeapElement.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MemoryManager.h" />
+    <ClInclude Include="MemoryPool.h" />
+    <ClInclude Include="Pool.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="Util.h" />

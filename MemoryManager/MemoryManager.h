@@ -4,6 +4,7 @@
 
 #include "Util.h"
 #include "Heap.h"
+#include "MemoryPool.h"
 
 void* operator new(size_t nSize);
 void* operator new(size_t size, char pHeapTag[]);
@@ -13,29 +14,36 @@ void operator delete(void* ptr);
 class MemoryManager
 {
 public:
-	static bool		isDebugEnabled() { return m_bDebugMode; };
+	static bool			isDebugEnabled() { return m_bDebugMode; };
+	static bool			isPoolingEnable() { return m_bPoolingMode; };
 
-	static void		initDefaultHeap(bool bDebugMobe = true);
+	static void			init(bool bDebugMobe = true);
+	static void*		allocFrame(size_t nSize, Str* sHeapTag = nullptr);
+	static void*		allocToHeap(size_t nSize, Str* sHeapTag = nullptr);
+	static void*		allocToPool(size_t nSize, Str* sHeapTag = nullptr);
 
-	static void		addHeap(char heapTag[]);
-	static void		delHeap(char heapTag[]);
-	static void		checkHeaps();
-	static void		clearHeaps();
-	static void		clearHeap(char heapTag[]);
+	static void			freeFromHeap(void* pMem);
+	static void			freeFromPool(void* pMem);
 
-	static void		addHeaderToHeap(Header* pHeader);
-	static void		addHeaderToHeap(Header* pNewHeader, char sHeapTag[]);
-	static void		delHeaderFromHeap(Header* pHeader);
+	static Heap*		addHeap(char heapTag[] = nullptr);
+	static void			delHeap(Str* heapTag);
+	static void			checkHeaps();
+	static void			clearHeaps();
+	static void			clearHeap(Str* heapTag);
+
+	static void			addHeader(Header* pNewHeader, Str* sHeapTag = nullptr);
+	static void			delItem(Header* pHeader);
 
 private:
-	MemoryManager() {}
-	~MemoryManager() {}
+						MemoryManager() {}
+						~MemoryManager() {}
 
-	static Heap*	getHeap() { return s_pHeaps; }
-	static Heap*	getHeap(char tag[]);
-	static Heap*	getLastHeap();
+	static Heap*		newHeap(Str* sHeapTag = nullptr);
+	static Heap*		findHeap(Str* tag);
+	
+	static Str			getValidTag(Str* sTag);
 
-	static bool		m_bDebugMode;
-
-	static Heap*	s_pHeaps;
+	static bool			m_bDebugMode;
+	static bool			m_bPoolingMode;
+	static Heap*		s_pRootHeap;
 };

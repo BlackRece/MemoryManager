@@ -1,36 +1,30 @@
 #pragma once
 #include <cmath>
-#include <string.h>
-#include "Util.h"
 
-#define TAG_LENGTH 30
+#include "Util.h"
+#include "Pool.h"
 
 class Heap
 {
 public:
-	Heap(char heapTag[]);
-	~Heap();
+	Str*				init(Header* pHeader, Str* sHeapTag = nullptr);
+	void				check();
+	void				clear();
 	
-	void				initHeap();
-	void				initHeap(Header* pHeader, char sHeapTag[]);
-	void				initDefaultHeap(Header* pHeader);
-	void				checkHeap();
-	void				clearHeap();
-	
-	Heap*				setHeader(Header* pHeader);
-	void				addHeader(Header* pHeader);
-	void				delHeader(Header* pHeader);
-	Header*				getHeapHeader() { return m_pHeader; }
-
 	void				addBytes(size_t byteCount);
 	void				subBytes(size_t byteCount);
 	size_t				getBytes();
 
-	const bool			hasTag() { return m_sTag != ""; }
-	char*				getTag() { return m_sTag; }
+	const bool			hasTag(Str sTag) { return m_sTag.cmp(sTag); }
+	const char*			getTag() { return m_sTag.str; }
+
+	Pool*				getPoolWithBytesFree(size_t nSize);
+	void				addPool(Pool* pPool);
 	
 	// linked list of heaps
 	void				addHeap(Heap* pHeap);
+	Heap*				findHeap(Str sTag);
+	Heap*				getLast() { return m_pNext == nullptr ? this : m_pNext->getLast(); }
 	Heap*				getNextHeap() { return m_pNext; }
 	void				setNextHeap(Heap* pNext) { m_pNext = pNext; }
 	
@@ -38,21 +32,32 @@ public:
 	void				setPrevHeap(Heap* pPrev) { m_pPrev = pPrev; }
 	
 	// linked list of headers
-	Header*				getNextHeader() { return m_pHeader->m_pNext; }
-	void				setNextHeader(Header* pNextHeader) { m_pHeader->m_pNext = pNextHeader; }
+	Heap*				setHeader(Header* pHeader);
+	void				addHeader(Header* pHeader);
+	void				delHeader(Header* pHeader);
+	Header*				getHeapHeader() { return m_pRootHeader; }
+
+	Header*				getNextHeader() { return m_pRootHeader->m_pNext; }
+	void				setNextHeader(Header* pNextHeader) { m_pRootHeader->m_pNext = pNextHeader; }
 	
 private:	
-	// heap info
-	char				m_sTag[TAG_LENGTH];
-	Heap*				m_pNext;
-	Heap*				m_pPrev;
-	
+						Heap() { ; }
+						~Heap()	{ clear(); }
+						
+	Pool*				m_pPool;
+
+	// heap stats
+	Str					m_sTag;
 	size_t				m_nByteCount;
 	size_t				m_nBytesAdded;
 	size_t				m_nBytesRemoved;
 	
+	// heap linked list
+	Heap*				m_pNext;
+	Heap*				m_pPrev;
+	
 	// header info
-	Header*				m_pHeader;
+	Header*				m_pRootHeader;
 	Header*				getLastHeader();
 	bool				isHeapHeader(Header* pHeader);
 };

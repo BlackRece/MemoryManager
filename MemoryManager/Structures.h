@@ -1,10 +1,32 @@
 #pragma once
 #include <exception>
+#include <string.h>
 
 #define HEAD_VALUE 0xDEADC0DE
 #define FOOT_VALUE 0xDEADBEEF
 
+#define TAG_LENGTH 30
+#define DEFAULT_TAG "Default"
+
 class Heap;
+
+struct Str
+{
+	char str[TAG_LENGTH];
+	int len;
+
+	bool isEmpty() { return len == 0; }
+	bool cmp(Str src) { return len == src.len && strcmp(str, src.str) == 0; }
+	void set(char string[])
+	{
+		if (string == nullptr)
+			return;
+
+		strcpy_s(str, string);
+		len = (int)strlen(string);
+	}
+	//strcpy_s(sTag, TAG_LENGTH, tag);
+};
 
 struct Footer
 {
@@ -58,10 +80,25 @@ struct Header
 	}
 };
 
-struct ObjectExample
+struct Item
 {
-	size_t size;
-	void* headPtr;
-	void* tailPtr;
-};
+public:
+	size_t			m_nSize;
+	void*			m_pData;
+	
+	Item*		m_pNext;
+	Item*		m_pPrev;
 
+	void init(size_t nSize)
+	{
+		m_nSize = nSize;
+		m_pData = this + sizeof(Item);
+		
+		m_pNext = nullptr;
+		m_pPrev = nullptr;
+	}
+
+	bool isFree() { return m_nSize == 0; }
+
+	Item* getLast() { return m_pNext == nullptr ? this : m_pNext->getLast(); }
+};

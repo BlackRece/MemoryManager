@@ -23,11 +23,6 @@ void* BaseObject::operator new(size_t size)
 	return ::operator new(size);
 }
 
-//void* operator new(size_t size, Heap* pTracker)
-//{
-//	return ::operator new(size, pTracker);
-//}
-
 void BaseObject::operator delete(void* pMem, size_t size)
 {
 	std::cout

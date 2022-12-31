@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
         "==========================\n\n" 
 		"Initializing Memory Manager...\n";
 
-    MemoryManager::initDefaultHeap(_DEBUG_MODE);
+    MemoryManager::init(_DEBUG_MODE);
 
     std::cout <<
         "\nDefault Heap initialised.\n\n"
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
     MemoryManager::checkHeaps();
 
     std::cout << "\ncreate a double." << std::endl;
-    double* pWidth = new double;
+    double* pWidth = new (heapTag) double;
     *pWidth = 1.0025;
     std::cout
         << "\nvalue of pWidth = \t\t" << std::dec << *pWidth << std::endl
