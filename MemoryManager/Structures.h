@@ -92,5 +92,8 @@ struct Frame
 		
 		m_pNext = nullptr;
 		m_pPrev = nullptr;
+
+		m_pHeap = nullptr;
+		m_pPool = nullptr;
 	}
 };

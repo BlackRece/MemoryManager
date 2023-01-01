@@ -17,6 +17,8 @@ public:
 	static bool			isPoolingEnable() { return m_bPoolingMode; };
 
 	static void			init(bool bDebugMobe = true);
+	static void			enablePooling(bool bPoolingMode) { m_bPoolingMode = bPoolingMode; }
+
 	static void*		allocFrame(size_t nSize, Str* sHeapTag);
 	static void*		allocToHeap(size_t nSize, Str* sHeapTag);
 	static void*		allocToPool(size_t nSize, Str* sHeapTag);

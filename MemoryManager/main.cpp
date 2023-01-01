@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
 		"Initializing Memory Manager...\n";
 
     MemoryManager::init(_DEBUG_MODE);
+    MemoryManager::enablePooling(false);
 
     std::cout <<
         "\nDefault Heap initialised.\n\n"
