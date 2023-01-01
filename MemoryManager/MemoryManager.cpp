@@ -13,8 +13,8 @@ void* operator new(size_t nSize)
 		<< "global operator new called ... \n";
 	
 	void* pStartMemBlock = MemoryManager::isPoolingEnable()
-		? MemoryManager::allocToPool(nSize)
-		: MemoryManager::allocToHeap(nSize);
+		? MemoryManager::allocToPool(nSize, nullptr)
+		: MemoryManager::allocToHeap(nSize, nullptr);
 
 	return pStartMemBlock;
 }
@@ -55,13 +55,19 @@ void operator delete(void* pMem)
 		<< "for address : " << std::hex << pMem
 		<< std::endl;
 		
-	if (MemoryManager::isPoolingEnable())
-	{
-		MemoryManager::freeFromPool(pMem);
-		return;
-	}
-	
-	MemoryManager::freeFromHeap(pMem);
+	Frame* pFrame = Util::getParentFrame(pMem);
+	size_t nBytes = pFrame->fullSize();
+
+	pFrame->m_pHeader->validate();
+	pFrame->m_pFooter->validate();
+
+	if (pFrame->m_pPool != nullptr)
+		pFrame->m_pPool->delFrame(pFrame);
+	else
+		pFrame->m_pHeap->freeFrame(pFrame);
+
+	std::cout
+		<< "\nBytes freed: " << std::dec << nBytes << std::endl;
 }
 
 void MemoryManager::init(bool bDebugMobe)
@@ -79,7 +85,7 @@ void MemoryManager::init(bool bDebugMobe)
 	if (s_pRootHeap != nullptr)
 		return;
 	
-	s_pRootHeap = newHeap();
+	s_pRootHeap = newHeap(nullptr);
 }
 
 Heap* MemoryManager::addHeap(char sHeapTag[])
@@ -87,17 +93,15 @@ Heap* MemoryManager::addHeap(char sHeapTag[])
 	Str sTag; sTag.set(sHeapTag);
 
 	Heap* pTargetHeap = findHeap(&sTag);
+	if (pTargetHeap != nullptr)
+		return pTargetHeap;
 	
-	if (pTargetHeap == nullptr)
-		pTargetHeap = newHeap(&sTag);
+	pTargetHeap = newHeap(&sTag);
 
 	Heap* pLastHeap = s_pRootHeap->getLast();
 		
-	if (pTargetHeap != pLastHeap)
-	{
-		pTargetHeap->setPrevHeap(pLastHeap);
-		pLastHeap->setNextHeap(pTargetHeap);
-	}
+	pTargetHeap->setPrevHeap(pLastHeap);
+	pLastHeap->setNextHeap(pTargetHeap);
 	
 	return pTargetHeap;
 }
@@ -105,27 +109,23 @@ Heap* MemoryManager::addHeap(char sHeapTag[])
 Heap* MemoryManager::newHeap(Str* sTag)
 {
 	size_t nHeapSize = sizeof(Heap);
+	
+	char* pMem = Util::allocFrameBytes(nHeapSize);
 
-	char* pMem = Util::allocBytes(nHeapSize);
+	Frame* pFrame = (Frame*)pMem;
+	pFrame->init(nHeapSize);
+	
+	Str sValidTag = Util::getValidTag(sTag);
 
-	Heap* pHeap = (Heap*)Util::getPointer(pMem);
-
-	Header* pHeader = Util::getHeader(pHeap);
-	pHeader->init(nHeapSize);
-	pHeader->m_pHeap = pHeap;
-
-	Footer* pFooter = Util::getFooter(pHeap);
-	pFooter->init();
-
-	Str sValidTag = getValidTag(sTag);
-	Str* sHeapTag = pHeap->init(pHeader, &sValidTag);
+	Heap* pHeap = (Heap*)pFrame->m_pData;
+	Str* sHeapTag = pHeap->init(&sValidTag);
 
 	std::cout
 		<< std::endl << sHeapTag->str
 		<< " heap created" << std::hex
 		<< "\naddress : " << pHeap
-		<< "\nheap header : " << pHeader
-		<< "\nheap footer : " << pFooter
+		<< "\nheap header : " << pFrame->m_pHeader
+		<< "\nheap footer : " << pFrame->m_pFooter
 		<< std::endl;
 
 	return pHeap;
@@ -133,18 +133,27 @@ Heap* MemoryManager::newHeap(Str* sTag)
 
 Heap* MemoryManager::findHeap(Str* sHeapTag)
 {
-	Str sTargetTag = getValidTag(sHeapTag);
 	std::cout
-		<< "MemoryManager - finding \"" << sTargetTag.str
+		<< "MemoryManager - finding \"" << sHeapTag->str
 		<< "\" Heap from heap list...\n";
 
 	if(s_pRootHeap != nullptr)
-		return s_pRootHeap->findHeap(sTargetTag);
+		return s_pRootHeap->findHeap(*sHeapTag);
 	
 	return nullptr;
 }
 
-void MemoryManager::delHeap(Str* heapTag)
+Heap* MemoryManager::getHeap(Str* sHeapTag)
+{
+	Heap* pHeap = findHeap(sHeapTag);
+	
+	if (pHeap == nullptr)
+		pHeap = s_pRootHeap;
+	
+	return pHeap;
+}
+
+void MemoryManager::freeHeap(Str* heapTag)
 {
 	Heap* pHeap = findHeap(heapTag);
 	if (pHeap == nullptr)
@@ -152,9 +161,18 @@ void MemoryManager::delHeap(Str* heapTag)
 	
 	pHeap->clear();
 
-	Header* pHeader = pHeap->getHeapHeader();
-	pHeap->delHeader(pHeader);
-	free(pHeader);
+	Heap* pPrev = pHeap->getPrev();
+	Heap* pNext = pHeap->getNext();
+	if (pPrev != nullptr)
+		pPrev->setNextHeap(pNext);
+	else
+		s_pRootHeap = pNext;
+	
+	if (pNext != nullptr)
+		pNext->setPrevHeap(pPrev);
+		
+	Frame* pFrame = Util::getParentFrame((void*)pHeap);
+	free(pFrame);
 }
 
 void MemoryManager::checkHeaps()
@@ -163,8 +181,8 @@ void MemoryManager::checkHeaps()
 
 	while (pHeap != nullptr)
 	{
-		pHeap->check();
-		pHeap = pHeap->getNextHeap();
+		pHeap->walk();
+		pHeap = pHeap->getNext();
 	}
 }
 
@@ -175,7 +193,7 @@ void MemoryManager::clearHeaps()
 	while (pHeap != nullptr)
 	{
 		pHeap->clear();
-		pHeap = pHeap->getNextHeap();
+		pHeap = pHeap->getNext();
 	}
 }
 
@@ -187,65 +205,30 @@ void MemoryManager::clearHeap(Str* heapTag)
 		pHeap->clear();
 }
 
-void MemoryManager::addHeader(Header* pHeader, Str* sHeapTag)
-{
-	Heap* pHeap = findHeap(sHeapTag);
-	
-	if (pHeap == nullptr)
-		pHeap = MemoryManager::s_pRootHeap;
-	
-	pHeap->addHeader(pHeader);
-}
-
-void MemoryManager::delItem(Header* pHeader)
-{
-	Heap* pHeap = pHeader->m_pHeap;
-	pHeap->delHeader(pHeader);
-}
-
-Str MemoryManager::getValidTag(Str* tag)
-{
-	char sDefaultTag[] = DEFAULT_TAG;
-	Str sTag; sTag.set(sDefaultTag);
-
-	if (tag == nullptr)
-		return sTag;
-
-	if (tag->isEmpty())
-		tag->set(sDefaultTag);
-
-	return *tag;
-}
-
 void* MemoryManager::allocFrame(size_t nSize, Str* sHeapTag)
 {
-	char* pMem = Util::allocBytes(nSize);
+	char* pAddr = Util::allocFrameBytes(nSize);
 
-	Header* pHeader = (Header*)pMem;
-	pHeader->init(nSize);
-
-	Str sTag = getValidTag(sHeapTag);
-
-	MemoryManager::addHeader(pHeader, &sTag);
-
-	Footer* pFooter = Util::getFooter(pHeader);
-	pFooter->init();
-
-	void* pStartMemBlock = Util::getDataPtr(pHeader);
-
+	Str sTag = Util::getValidTag(sHeapTag);
+	Heap* pHeap = getHeap(&sTag);
+	
+	Frame* pFrame = (Frame*)pAddr;
+	pFrame->init(nSize);
+	pHeap->addFrame(pFrame);
+	
 	std::cout
 		<< "\non selected heap: " << sTag.str
 		<< "\naddress selected: "
-		<< std::hex << (void*)pMem
+		<< std::hex << (void*)pAddr
 		<< "\nheader address: "
-		<< std::hex << pHeader
+		<< std::hex << pFrame->m_pHeader
 		<< "\n  data address: "
-		<< std::hex << pStartMemBlock
+		<< std::hex << pFrame->m_pData
 		<< "\nfooter address: "
-		<< std::hex << pFooter
+		<< std::hex << pFrame->m_pFooter
 		<< std::endl;
 
-	return pStartMemBlock;
+	return pFrame->m_pData;
 }
 
 void* MemoryManager::allocToHeap(size_t nSize, Str* sHeapTag)
@@ -255,68 +238,34 @@ void* MemoryManager::allocToHeap(size_t nSize, Str* sHeapTag)
 
 void* MemoryManager::allocToPool(size_t nSize, Str* sHeapTag)
 {
-	Heap* pHeap = findHeap(sHeapTag);
+	Str sTag = Util::getValidTag(sHeapTag);
+
+	Heap* pHeap = getHeap(&sTag);
 
 	std::cout
 		<< "MemoryManager - allocating "
 		<< std::dec << nSize
 		<< " bytes to pool on heap "
-		<< pHeap->getTag() << std::endl;
-
+		<< pHeap->getTag()->str << std::endl;
+	
 	Pool* pPool = pHeap->getPoolWithBytesFree(nSize);
-	
 	if (pPool == nullptr)
-	{
-		size_t nPoolSize = MemoryPool::calcPoolSize(nSize);
-
-		pPool = (Pool*)MemoryManager::allocFrame(nPoolSize, sHeapTag);
-		pPool->init(nPoolSize);
-		
-		pHeap->addPool(pPool);
-	}
+		pPool = newPool(nSize, pHeap);
 	
-	return pPool->addItem(nSize);
+	Frame* pFrame = pPool->addFrame(nSize);
+	pFrame->m_pHeap = pHeap;
+			
+	return pFrame->m_pData;
 }
 
-void MemoryManager::freeFromHeap(void* pMem)
+Pool* MemoryManager::newPool(size_t nSize, Heap* pHeap)
 {
-	Header* pHeader = Util::getHeader(pMem);
-	size_t nFullSize = pHeader->m_nFullSize;
-	std::cout
-		<< "header captured at address: "
-		<< std::hex << pHeader << std::endl;
-	pHeader->validate();
+	size_t nPoolSize = Pool::calcPoolSize(nSize);
 
-	Footer* pFooter = Util::getFooter(pMem);
-	std::cout
-		<< "footer captured at address: "
-		<< std::hex << pFooter << std::endl;
-	pFooter->validate();
+	Pool* pPool = (Pool*)allocFrame(nPoolSize, pHeap->getTag());
+	pPool->init(nPoolSize);
 
-	MemoryManager::delItem(pHeader);
+	pHeap->addPool(pPool);
 
-	free(pHeader);
-	std::cout
-		<< "object deleted : bytes freed = "
-		<< std::dec << nFullSize << std::endl;
-}
-
-void MemoryManager::freeFromPool(void* pMem)
-{
-	Item* pItem = Util::getItem(pMem);
-	//pItem->
-	//
-	//size_t nFullSize = pHeader->m_nFullSize;
-	//std::cout
-	//	<< "header captured at address: "
-	//	<< std::hex << pHeader << std::endl;
-	//pHeader->validate();
-
-	//Footer* pFooter = Util::getFooter(pMem);
-	//std::cout
-	//	<< "footer captured at address: "
-	//	<< std::hex << pFooter << std::endl;
-	//pFooter->validate();
-
-	//MemoryManager::delItem(pHeader);
+	return pPool;
 }

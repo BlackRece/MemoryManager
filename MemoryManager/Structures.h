@@ -9,6 +9,7 @@
 #define DEFAULT_TAG "Default"
 
 class Heap;
+class Pool;
 
 struct Str
 {
@@ -25,14 +26,13 @@ struct Str
 		strcpy_s(str, string);
 		len = (int)strlen(string);
 	}
-	//strcpy_s(sTag, TAG_LENGTH, tag);
 };
 
 struct Footer
 {
 	int m_iCheckValue;
 
-	bool isValid() { return m_iCheckValue == FOOT_VALUE; }
+	void init() { m_iCheckValue = FOOT_VALUE; }
 	bool validate()
 	{
 		//FOOT_VALUE = -559038737
@@ -41,21 +41,13 @@ struct Footer
 
 		return true;
 	}
-	void init() { m_iCheckValue = FOOT_VALUE; }
 };
 
 struct Header
 {
-	size_t	m_nDataSize;
-	size_t	m_nFullSize;
 	int		m_iCheckValue;
 	
-	Heap*	m_pHeap;
-	
-	Header* m_pNext;
-	Header* m_pPrev;
-	
-	bool isValid() { return m_iCheckValue == HEAD_VALUE; }
+	void init()	{ m_iCheckValue = HEAD_VALUE; }
 	bool validate() 
 	{
 		//HEAD_VALUE = -559038242
@@ -67,38 +59,38 @@ struct Header
 		
 		return true;
 	}
-	
-	void init(size_t dataSize)
-	{
-		m_nDataSize = dataSize;
-		m_nFullSize = dataSize + sizeof(Header) + sizeof(Footer);
-		
-		m_iCheckValue = HEAD_VALUE;
-		
-		m_pNext = nullptr;
-		m_pPrev = nullptr;
-	}
 };
 
-struct Item
+struct Frame
 {
-public:
-	size_t			m_nSize;
-	void*			m_pData;
+	size_t		m_nSize;
+
+	Heap*		m_pHeap;
+	Pool*		m_pPool;
 	
-	Item*		m_pNext;
-	Item*		m_pPrev;
+	Header*		m_pHeader;
+	Footer*		m_pFooter;
+	void*		m_pData;
+	
+	Frame*		m_pNext;
+	Frame*		m_pPrev;
+
+	Frame*		getLast() { return m_pNext == nullptr ? this : m_pNext->getLast(); }
+	size_t		fullSize() { return sizeof(Frame) + sizeof(Header) + m_nSize + sizeof(Footer); }
 
 	void init(size_t nSize)
 	{
 		m_nSize = nSize;
-		m_pData = this + sizeof(Item);
+		
+		m_pHeader = (Header*)((char*)this + sizeof(Frame));
+		m_pHeader->init();
+
+		m_pData = (void*)((char*)m_pHeader + sizeof(Header));
+		
+		m_pFooter = (Footer*)((char*)m_pData + nSize);
+		m_pFooter->init();
 		
 		m_pNext = nullptr;
 		m_pPrev = nullptr;
 	}
-
-	bool isFree() { return m_nSize == 0; }
-
-	Item* getLast() { return m_pNext == nullptr ? this : m_pNext->getLast(); }
 };

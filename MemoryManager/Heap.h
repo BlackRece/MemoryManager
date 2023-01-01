@@ -7,8 +7,9 @@
 class Heap
 {
 public:
-	Str*				init(Header* pHeader, Str* sHeapTag = nullptr);
-	void				check();
+	Str*				init(Str* sHeapTag);
+	void				walk();
+	int					walkPools();
 	void				clear();
 	
 	void				addBytes(size_t byteCount);
@@ -16,48 +17,43 @@ public:
 	size_t				getBytes();
 
 	const bool			hasTag(Str sTag) { return m_sTag.cmp(sTag); }
-	const char*			getTag() { return m_sTag.str; }
+	Str*				getTag() { return &m_sTag; }
 
 	Pool*				getPoolWithBytesFree(size_t nSize);
+	Pool*				getPoolWithSpace(size_t nSize);
 	void				addPool(Pool* pPool);
+	void				freePool(Pool* pPool);
 	
 	// linked list of heaps
 	void				addHeap(Heap* pHeap);
 	Heap*				findHeap(Str sTag);
 	Heap*				getLast() { return m_pNext == nullptr ? this : m_pNext->getLast(); }
-	Heap*				getNextHeap() { return m_pNext; }
+	Heap*				getNext() { return m_pNext; }
 	void				setNextHeap(Heap* pNext) { m_pNext = pNext; }
 	
 	Heap*				getPrev() { return m_pPrev; }
 	void				setPrevHeap(Heap* pPrev) { m_pPrev = pPrev; }
 	
-	// linked list of headers
-	Heap*				setHeader(Header* pHeader);
-	void				addHeader(Header* pHeader);
-	void				delHeader(Header* pHeader);
-	Header*				getHeapHeader() { return m_pRootHeader; }
-
-	Header*				getNextHeader() { return m_pRootHeader->m_pNext; }
-	void				setNextHeader(Header* pNextHeader) { m_pRootHeader->m_pNext = pNextHeader; }
-	
+	void				addFrame(Frame* pFrame);
+	void				freeFrame(Frame* pFrame);
+		
 private:	
 						Heap() { ; }
 						~Heap()	{ clear(); }
 						
-	Pool*				m_pPool;
+	Pool*				m_pRootPool;
 
 	// heap stats
 	Str					m_sTag;
 	size_t				m_nByteCount;
-	size_t				m_nBytesAdded;
-	size_t				m_nBytesRemoved;
+	size_t				m_nBytesAllocated;
+	size_t				m_nBytesDeallocated;
 	
 	// heap linked list
 	Heap*				m_pNext;
 	Heap*				m_pPrev;
 	
-	// header info
-	Header*				m_pRootHeader;
-	Header*				getLastHeader();
-	bool				isHeapHeader(Header* pHeader);
+	// linked list of frames
+	Frame*				getLastFrame() { return m_pRootFrame != nullptr ? m_pRootFrame->getLast() : nullptr; }
+	Frame*				m_pRootFrame;
 };
