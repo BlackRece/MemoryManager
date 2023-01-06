@@ -1,6 +1,6 @@
 #pragma once
 #include <exception>
-#include <string.h>
+#include <cstring>
 
 #define HEAD_VALUE 0xDEADC0DE
 #define FOOT_VALUE 0xDEADBEEF
@@ -75,8 +75,16 @@ struct Frame
 	Frame*		m_pNext;
 	Frame*		m_pPrev;
 
-	Frame*		getLast() { return m_pNext == nullptr ? this : m_pNext->getLast(); }
-	size_t		fullSize() { return sizeof(Frame) + sizeof(Header) + m_nSize + sizeof(Footer); }
+	Frame*		getLast() 
+	{
+		return m_pNext == nullptr 
+			? this 
+			: m_pNext->getLast(); 
+	}
+	size_t		fullSize() 
+	{
+		return sizeof(Frame) + sizeof(Header) + m_nSize + sizeof(Footer); 
+	}
 
 	void init(size_t nSize)
 	{
