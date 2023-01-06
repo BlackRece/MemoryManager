@@ -52,10 +52,7 @@ struct Header
 	{
 		//HEAD_VALUE = -559038242
 		if (m_iCheckValue != HEAD_VALUE)
-		{
 			throw "invalid header";
-			return false;
-		}
 		
 		return true;
 	}
