@@ -87,6 +87,14 @@ void MemoryManager::init(bool bDebugMobe)
 
 Heap* MemoryManager::addHeap(char sHeapTag[])
 {
+	if (!isDebugEnabled())
+	{
+		std::cout 
+			<< "\nMemory Manager not available in release mode.\n";
+		
+		return nullptr;
+	}
+
 	Str sTag; sTag.set(sHeapTag);
 
 	Heap* pTargetHeap = findHeap(&sTag);
