@@ -1,23 +1,6 @@
 #include "BaseObject.h"
 #include "MemoryManager.h"
 
-//void* operator new(size_t nSize, char pHeapTag[])
-//{
-//	Str sTag; sTag.set(pHeapTag);
-//	
-//	std::cout
-//		<< "global operator new called ..."
-//		<< "\nwith size: " << nSize
-//		<< "\nfor heap: " << sTag.str
-//		<< std::endl;
-//
-//	void* pStartMemBlock = MemoryManager::isPoolingEnable()
-//		? MemoryManager::allocToPool(nSize, &sTag)
-//		: MemoryManager::allocToHeap(nSize, &sTag);
-//
-//	return pStartMemBlock;
-//}
-
 BaseObject::BaseObject()
 {
 	std::cout << "BaseObject :: constructor \n";
