@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
     std::cout << "\nCreate variables:\n";
 
-    std::cout << "\ncreate an object." << std::endl;
+    std::cout << "\nCreate an object, using class specific 'new'." << std::endl;
     BaseObject* pObject = new BaseObject();
     pObject->aMethod();
 

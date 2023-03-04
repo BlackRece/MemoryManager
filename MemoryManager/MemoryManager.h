@@ -6,7 +6,7 @@
 #include "Heap.h"
 
 void* operator new(size_t nSize);
-void* operator new(size_t size, char pHeapTag[]);
+void* operator new(size_t nSize, char pHeapTag[]);
 
 void operator delete(void* ptr);
 
