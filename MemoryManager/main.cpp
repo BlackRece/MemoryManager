@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
 		"Initializing Memory Manager...\n";
 
     MemoryManager::init(_DEBUG_MODE);
+	// NOTE: If MemoryManager is enabled, pooling is enabled by default.
     //MemoryManager::enablePooling(false);
 
     std::cout <<
