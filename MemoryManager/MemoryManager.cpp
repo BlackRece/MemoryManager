@@ -41,9 +41,6 @@ void* operator new (size_t nSize, char pHeapTag[])
 
 void operator delete(void* pMem)
 {
-	// TODO: this operator method only deallocates from the heap.
-	// Amend this method to account for the use of the memory pool found on the heap.
-
 	if (!MemoryManager::isDebugEnabled())
 	{
 		free(pMem);
